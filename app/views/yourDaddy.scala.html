@@ -1,0 +1,19 @@
+@(daddyName: String)
+
+<html>
+<head>
+<title>Who Is Your Daddy DOT COM</title>
+</head>
+<body>
+
+Your daddy is:
+<h1>@daddyName</h1>
+
+If this is incorrect, you can change it here:
+<form action="/form" method="POST">
+<input type="text" name="daddyName" value="@daddyName"><br />
+<input type="submit" />
+</form>
+
+</body>
+</html>
