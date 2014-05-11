@@ -1,9 +1,9 @@
 package controllers
 
 import play.api._
+import play.api.libs.json._
 import play.api.mvc._
 import play.api.data._
-import play.api.data.Forms._
 
 import models._
 
@@ -16,9 +16,9 @@ object TaskController extends Controller {
 
     def list = Action {
       Ok(
-        tasks.foldRight("") {
-          (kv, acc) => acc + kv._1  + " = " + kv._2 + "\n"
-        }
+        Json.toJson(tasks.toMap.map {
+          case(k, v) => (k toString, v)
+        })
       ).as("text/text")
     }
 
