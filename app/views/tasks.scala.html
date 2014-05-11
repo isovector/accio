@@ -1,12 +1,17 @@
 <!doctype html>
-<html lang="en" ng-app>
+<html lang="en" ng-app="accioApp">
 <head>
 	<meta charset="utf-8">
 	<title>My HTML File</title>
-	<script src="@routes.Assets.at("javascripts/angular-1.2.1/angular.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/libs/angular-1.2.1/angular.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
+
 </head>
 
-<body>
+<body ng-controller="TaskCtrl">
+	<ul>
+		<li ng-repeat="task in tasks">{{task}}</li>
+	</ul>
 	<p>Nothing here {{'yet' + '!'}}</p>
 </body>
 </html>
