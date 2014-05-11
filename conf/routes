@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.TestController.index
+GET     /                           controllers.HomeController.index
 POST    /form                       controllers.TestController.update
 
 # Map static resources from the /public folder to the /assets URL path
