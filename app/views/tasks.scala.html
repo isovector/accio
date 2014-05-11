@@ -9,8 +9,10 @@
 </head>
 
 <body ng-controller="TaskCtrl">
+	<button ng-click="addTask()">Add Task</button>
+	<input ng-model="task.title"/>
 	<ul>
-		<li ng-repeat="task in tasks">{{task}}</li>
+		<li ng-repeat="task in tasks">{{task}} <button ng-click="deleteTask($index)">DELETE</button></li>
 	</ul>
 	<p>Nothing here {{'yet' + '!'}}</p>
 </body>
