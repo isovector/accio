@@ -4,6 +4,7 @@ import play.api._
 import play.api.libs.json._
 import play.api.mvc._
 import play.api.data._
+import play.api.data.Forms._
 
 import models._
 
@@ -23,13 +24,15 @@ object TaskController extends Controller {
     }
 
     def create = Action { implicit request =>
-      val title: Option[String] = request.getQueryString("title")
+      val title = Form(
+        "title" -> text
+      ).bindFromRequest.get
 
       if (title isEmpty) {
         BadRequest
       }
       else {
-        tasks += (taskId -> (title get))
+        tasks += (taskId -> title)
         taskId = taskId + 1
 
         Ok
