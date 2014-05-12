@@ -1,16 +1,24 @@
-var accioApp = angular.module('accioApp', []);
+var accioApp = angular.module('accioApp', ['ngResource']);
 
-accioApp.controller('TaskCtrl', function($scope, $http) {
+accioApp.factory('Task', ['$resource', function($resource){
+		return $resource('api/tasks/:taskId', {}, {
+			getTasks: {method:'GET'},
+			createTask: {method:'POST', params: {title : '@title'}},
+			//deleteTask: {method:'DELETE', params: {"taskId" : taskId}}
+		});
+	}
+]);
 
+accioApp.controller('TaskCtrl', ['$scope', '$http', 'Task', function($scope, $http, Task) {
 
 	$scope.tasks = ["eat", "sleep", "rave", "repeat"];
 	$scope.task = {title : ""};
 
 	$scope.update = function() {
-		$http.get('api/tasks').success(function(data) {
+		Task.getTasks('' ,function(data) {
 			console.log(data);
 			$scope.tasks = data;
-		});
+		});		
 	}
 
 
@@ -30,4 +38,4 @@ accioApp.controller('TaskCtrl', function($scope, $http) {
 	}
 
 	$scope.update();
-});
+}]);

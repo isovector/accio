@@ -4,6 +4,8 @@
 	<meta charset="utf-8">
 	<title>My HTML File</title>
 	<script src="@routes.Assets.at("javascripts/libs/angular-1.2.1/angular.js")" type="text/javascript"></script>
+	<script src="@routes.Assets.at("javascripts/libs/angular-1.2.1/angular-resource.js")" type="text/javascript"></script>
+
 	<script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
 
 </head>
@@ -12,7 +14,7 @@
 	<button ng-click="addTask()">Add Task</button>
 	<input ng-model="task.title"/>
 	<ul>
-		<li ng-repeat="task in tasks">{{task}} <button ng-click="deleteTask($index)">DELETE</button></li>
+		<li ng-repeat="task in tasks">{{task.title}} <button ng-click="deleteTask(task.id)">DELETE</button></li>
 	</ul>
 	<p>Nothing here {{'yet' + '!'}}</p>
 </body>
