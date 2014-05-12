@@ -12,7 +12,7 @@ import scala.collection.mutable.HashMap
 
 object TaskController extends Controller {
     var taskId: Long = 0
-    val tasks = new HashMap[Long, String]
+    val tasks = new HashMap[Long, Task]
 
 
     def list = Action {
@@ -32,7 +32,7 @@ object TaskController extends Controller {
         BadRequest
       }
       else {
-        tasks += (taskId -> title)
+        tasks += (taskId -> new Task(taskId, title))
         taskId = taskId + 1
 
         Ok
