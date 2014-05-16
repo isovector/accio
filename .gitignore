@@ -14,3 +14,8 @@ dist
 /.project
 /RUNNING_PID
 /.settings
+*.swp
+*.swn
+*.swm
+*.swo
+*.db
