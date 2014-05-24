@@ -1,6 +1,5 @@
 package models.scheduling
 
-
 import scala.collection.immutable._
 import com.github.nscala_time.time.Imports._
 
@@ -8,7 +7,7 @@ import com.github.nscala_time.time.Imports._
 case class Task(
   name: String, 
   dueDate: DateTime, 
-  duration: Duration, 
+  var duration: Duration, 
   importance: Int
 )
 
@@ -27,7 +26,7 @@ class WorkChunkList(chunks: Seq[WorkChunk]) {
 case class Event(task: Task, when: DateTime, duration: Duration)
 
 
-class Scheduler(allTasks: Seq[Task], workChunks: Seq[WorkChunk]) {
+class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
   // Allows us to call WorkChunkList methods on work chunk lists
   implicit def listWrapper(chunks: Seq[WorkChunk]) = new WorkChunkList(chunks)
 
@@ -42,7 +41,8 @@ class Scheduler(allTasks: Seq[Task], workChunks: Seq[WorkChunk]) {
   }
 
 
-  val tasks = allTasks.sortBy { task => task.dueDate }
+  val tasks      = allTasks.sortBy  { task => task.dueDate }
+  val workChunks = allChunks.sortBy { chunk => chunk.when }
 
   // Gets the duration of all workchunks between two dates
   def getSpendableTimeDuring(start: DateTime, end: DateTime): Duration = 
@@ -75,9 +75,53 @@ class Scheduler(allTasks: Seq[Task], workChunks: Seq[WorkChunk]) {
     true
   }
 
+  private def min(a: Duration, b: Duration): Duration =
+    if (a < b) a else b
+
+  private def createEvent(task: Task, chunk: WorkChunk): Event =
+    new Event(task, chunk.when, min(task.duration, chunk.duration))
+
   // Schedule events into workchunks
-  def doScheduling: Seq[Event] = {
-    List()
+  def doScheduling: Option[Seq[Event]] = {
+    var results: Seq[Event] = List()
+
+    if (!hasEnoughTime) {
+      return None
+    }
+
+    var available = workChunks
+    var toSchedule = tasks
+
+    while (toSchedule.length != 0) {
+      // Using "def" so we get a reference to toSchedule.head
+      def task = toSchedule.head
+
+      val chunkOption = available.headOption
+      if (chunkOption == None) {
+        // Ran out of chunks to schedule in
+        return None
+      }
+
+      val chunk = chunkOption.get
+      if (task.dueDate < chunk.when) {
+        // Missed our deadline =(
+        return None
+      }
+
+      available = available.tail
+
+      // Schedule this work chunk as an event
+      val event = createEvent(task, chunk)
+      results :+= event
+
+      task.duration = task.duration - event.duration
+      if (task.duration <= 0.seconds) {
+        // Task is finished, onwards!
+        toSchedule = toSchedule.tail
+      }
+    }
+
+    Some(results)
   }
 }
 

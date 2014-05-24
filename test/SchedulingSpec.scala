@@ -54,5 +54,9 @@ class SchedulingSpec extends Specification {
     "not have enough time before 5h deadline" in {
       new Scheduler(Mock.tasks5hDeadline, Mock.productivity10h).hasEnoughTime must beFalse
     }
+
+    "successfully schedule" in {
+      new Scheduler(Mock.tasks1h, Mock.productivity5h).doScheduling must beSome
+    }
   }
 }
