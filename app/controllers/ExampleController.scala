@@ -16,7 +16,7 @@ object ExampleController extends Controller {
     }
 
     var dad = existingDad.getOrElse(new Dad(name = "Lou"))
-  
+
     // If no dad was found in the db, add the new one
     if (existingDad.isEmpty) {
         DB.withSession { implicit session =>
@@ -29,12 +29,12 @@ object ExampleController extends Controller {
         "id" -> optional(number),
         "name" -> text
     )(Dad.apply)(Dad.unapply))
-   
+
     // Referenced in conf/routes as action when page is visited
     def index = Action {
         // Updates form with ExampleModel's (singleton object) current value
         Ok(views.html.example(name = dad.name))
-        
+
         // If id had been passed through
         //Ok(views.html.example(name = dad.name, id = dad.id))
     }
@@ -57,7 +57,7 @@ object ExampleController extends Controller {
         //}
         // Chose not to as it would be a security issue
 
-        
+
         // Redirect to example page after calculation
         Redirect("/example")
     }

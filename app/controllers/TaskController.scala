@@ -41,7 +41,7 @@ object TaskController extends Controller {
 
     def delete(id: Long) = Action {
       tasks -= id
-     
+
       Ok
     }
 }
