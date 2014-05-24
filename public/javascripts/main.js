@@ -2,7 +2,7 @@ var accioApp = angular.module('accioApp', ['ngResource']);
 
 accioApp.factory('Task', ['$resource', function($resource){
 		return $resource('api/tasks/:taskId', {}, {
-			getTasks: {method:'GET'},
+			getTasks: {method:'GET', },
 			createTask: {method:'POST', params: {title : '@title'}},
 			//deleteTask: {method:'DELETE', params: {"taskId" : taskId}}
 		});
@@ -11,11 +11,11 @@ accioApp.factory('Task', ['$resource', function($resource){
 
 accioApp.controller('TaskCtrl', ['$scope', '$http', 'Task', function($scope, $http, Task) {
 
-	$scope.tasks = ["eat", "sleep", "rave", "repeat"];
+	$scope.tasks = [];
 	$scope.task = {title : ""};
 
 	$scope.update = function() {
-		Task.getTasks('' ,function(data) {
+		Task.getTasks(function(data) {
 			console.log(data);
 			$scope.tasks = data;
 		});		
