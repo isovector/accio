@@ -4,8 +4,10 @@
 # --- !Ups
 
 create table "Dad" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"name" VARCHAR(254) NOT NULL);
+create table "Task" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"title" VARCHAR(254) NOT NULL);
 
 # --- !Downs
 
 drop table "Dad";
+drop table "Task";
 

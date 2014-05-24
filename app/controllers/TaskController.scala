@@ -5,22 +5,25 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.db.slick.DB
+import play.api.Play.current
 
 import models._
 
 import scala.collection.mutable.HashMap
+import play.api.db.slick.Config.driver.simple._
 
 object TaskController extends Controller {
-    var taskId: Long = 0
-    val tasks = new HashMap[Long, Task]
 
-
+    // TODO: get tasks for a specific user
     def list = Action {
+      val existingTasks = DB.withSession { implicit session =>
+        TableQuery[TaskModel].list
+      }
       Ok(
-        Json.toJson(tasks.toMap.map {
-          case(k, v) => (k toString, v)
-        })
+        Json.toJson( existingTasks )
       ).as("text/text")
+
     }
 
     def create = Action { implicit request =>
@@ -32,16 +35,20 @@ object TaskController extends Controller {
         BadRequest
       }
       else {
-        tasks += (taskId -> new Task(taskId, title))
-        taskId = taskId + 1
+        Console.println(title)
+        val task = new Task(title = title)
+        DB.withSession { implicit session =>
+            TableQuery[TaskModel] += task
+        }
 
         Ok
       }
     }
 
-    def delete(id: Long) = Action {
-      tasks -= id
-
+    def delete(id: Int) = Action {
+      val drop = DB.withSession { implicit session =>
+          TableQuery[TaskModel].where(_.id === id).delete
+      }
       Ok
     }
 }
