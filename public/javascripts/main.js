@@ -2,7 +2,7 @@ var accioApp = angular.module('accioApp', ['ngResource']);
 
 accioApp.factory('Task', ['$resource', function($resource){
 		return $resource('api/tasks/:taskId', {}, {
-			getTasks: {method:'GET'},
+			getTasks: {method:'GET', isArray:true},
 			createTask: {method:'POST', params: {title : '@title'}},
 			//deleteTask: {method:'DELETE', params: {"taskId" : taskId}}
 		});

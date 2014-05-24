@@ -6,7 +6,7 @@ import play.api.data.Forms._
 import play.api.db.slick.DB
 import play.api.mvc.{Action, Controller}
 import play.api.Play.current
-import scala.slick.driver.SQLiteDriver.simple._
+import play.api.db.slick.Config.driver.simple._
 
 
 object ExampleController extends Controller {
