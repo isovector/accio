@@ -39,3 +39,35 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'Task', function($scope, $ht
 
 	$scope.update();
 }]);
+
+accioApp.directive('categoryList', function() {
+	return {
+		//Only apply this directive to elements with this name
+		restrict: 'A',
+		//replace the element with the template
+		replace: true,
+		templateUrl: "/assets/directives/categoryList.partial.html",
+		link: function(scope, element, attributes) {
+			scope.categories = ["EAT", "SLEEP", "RAVE", "REPEAT"];
+		}
+
+	}
+})
+
+accioApp.directive('taskList', function() {
+	return {
+		//Only apply this directive to elements with this name
+		restrict: 'A',
+		//replace the element with the template
+		replace: true,
+		templateUrl: "/assets/directives/taskList.partial.html"
+	}
+})
+
+accioApp.directive('taskDetail', function() {
+	return {
+		restrict: 'A',
+		replace: true,
+		templateUrl: "/assets/directives/taskDetail.partial.html"
+	}
+})
