@@ -35,6 +35,13 @@ object Task {
         t => t.id.get,
         i => TaskModel.findOneByID(i).get
     )
+
+  class RichTask(underlying: Task) {
+    var timeRemaining: Duration = underlying.estimatedTime.getOrElse(1.hours)
+    var completedDuring: Option[Event] = None
+  }
+
+  implicit def task2RichTask(underlying: Task): RichTask = new RichTask(underlying)
 }
 
 class TaskModel(tag: Tag) extends Table[Task](tag, "Task") {
