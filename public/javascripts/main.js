@@ -81,6 +81,10 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 		});
 	}
 
+	$scope.selectTask = function(task) {
+		$scope.selectedTask = task;
+	}
+
 	$scope.$on('tasks.update', function (event) {
 		$scope.tasks = TaskService.tasks;
 	})
