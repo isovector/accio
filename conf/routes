@@ -8,7 +8,7 @@ GET     /example                    controllers.ExampleController.index
 POST    /example/form               controllers.ExampleController.update
 
 # Calendar
-GET	/calendar			controllers.CalendarController.index
+GET	/calendar			            controllers.CalendarController.index
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
@@ -19,6 +19,9 @@ GET     /ws                         controllers.ChatExample.index
 GET     /api/tasks                  controllers.TaskController.list
 POST    /api/tasks                  controllers.TaskController.create
 DELETE  /api/tasks/:id              controllers.TaskController.delete(id: Int)
-POST	/api/tasks/:id   	    controllers.TaskController.editTitle(id: Int)
+
+GET     /api/events                 controllers.EventController.list
+POST    /api/events                 controllers.EventController.create
+DELETE  /api/events/:id             controllers.EventController.delete(id :Int)
 
 POST    /api/schedule               controllers.SchedulingController.create
