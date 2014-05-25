@@ -35,7 +35,6 @@ object TaskController extends Controller {
         BadRequest
       }
       else {
-        Console.println(title)
         val task = new Task(title = title)
         DB.withSession { implicit session =>
             TableQuery[TaskModel] += task
@@ -50,5 +49,25 @@ object TaskController extends Controller {
           TableQuery[TaskModel].where(_.id === id).delete
       }
       Ok
+    }
+    
+    def editTitle(id:Int) = Action { implicit session =>
+      
+      val title = Form(
+        "title" -> text
+      ).bindFromRequest.get
+
+      if (title isEmpty) {
+        BadRequest
+      }
+      else {
+        Console.println(title)
+        val task = new Task(id = Some(id), title = title)
+        DB.withSession { implicit session =>
+            TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
+        }
+
+        Ok
+      }
     }
 }

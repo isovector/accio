@@ -26,7 +26,7 @@
 		<button ng-click="addTask()">Add Task</button>
 		<input ng-model="task.title"/>
 		<ul>
-			<li ng-repeat="task in tasks">{{task.title}} <button ng-click="deleteTask(task.id)">DELETE</button></li>
+			<li ng-repeat="task in tasks"><input ng-model="task.title" ng-text={{task.title}} /> <button ng-click="deleteTask(task.id)">DELETE</button> <button ng-click="editTaskTitle(task)">EDIT</button></li>
 		</ul>
 	</div>
 	
