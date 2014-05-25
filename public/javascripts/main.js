@@ -1,5 +1,25 @@
 var accioApp = angular.module('accioApp', ['ngResource']);
 
+/*accioApp.config(["$routeProvider", function($routeprovider){
+	return $routeProvider
+		.when('/', {
+			templateUrl: 'views/tasks.scala.html',
+			controller: 'TaskCtrl'
+		})
+		.when('/calendar', {
+			templateUrl: 'views/calendar',
+			controller: 'CalendarCtrl'
+		})
+		.when('/testroute', {
+			templateUrl: 'views/broken',
+			//controller: 'CalendarCtrl'
+		})
+		.otherwise({
+			redirectTo: '/'
+		})
+	});*/
+		
+
 accioApp.factory('Task', ['$resource', function($resource){
 		return $resource('api/tasks/:taskId', {}, {
 			getTasks: {method:'GET', },
@@ -10,7 +30,7 @@ accioApp.factory('Task', ['$resource', function($resource){
 ]);
 
 accioApp.controller('TaskCtrl', ['$scope', '$http', 'Task', function($scope, $http, Task) {
-
+		
 	$scope.tasks = [];
 	$scope.task = {title : ""};
 
@@ -39,3 +59,28 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'Task', function($scope, $ht
 
 	$scope.update();
 }]);
+
+accioApp.controller('CalendarCtrl', ['$scope', '$http', function($scope, $http) {
+
+	$scope.tasks = [];
+	$scope.task = {title : "calnder"};
+
+	$scope.test = function(){
+		alert("jj");
+	}
+
+	
+	scheduler.init('scheduler_here', new Date(), "month");
+
+	//$scope.scheduler = scheduler;
+}]);
+
+accioApp.directive('calendar', function() {
+	return {
+		//Only apply this directive to elements with this name
+		restrict: 'A',
+		//replace the element with the template
+		replace: true,
+		templateUrl: "/assets/directives/calendar.partial.html"
+	}
+})
