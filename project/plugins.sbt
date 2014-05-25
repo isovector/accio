@@ -12,3 +12,6 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 
 // Use the scalastyle plugin for style check
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.4.0")
+
+// jshint
+addSbtPlugin("com.typesafe.sbt" % "sbt-jshint" % "1.0.0-RC2")
