@@ -89,4 +89,8 @@ object TaskController extends Controller {
         Ok
     }
 
+    def findByID(id: Int): Option[Task] =
+        DB.withSession { implicit session =>
+            TableQuery[TaskModel].filter(_.id === id).firstOption
+        }
 }
