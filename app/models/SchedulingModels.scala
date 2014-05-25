@@ -17,6 +17,8 @@ class Task(
   val duration = cduration
   var timeRemaining = cduration
   val importance = cimportance
+
+  var completedDuring: Option[WorkChunk] = None
 }
 
 // Scheduled time for Getting Shit Done
@@ -73,12 +75,16 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     val minBufferTime = 1 hours
 
     // Only schedule this much time per project per day (prevent burnouts)
-    val maxProjectTimePerSession = 4 hours
+    // val maxProjectTimePerSession = 4 hours
+
+    // Minimum amount of time to get productive work done
+    val rampUpPeriod = 20 minutes
   }
 
 
   val tasks      = allTasks.sortBy  { task => task.dueDate }
   val workChunks = allChunks.sortBy { chunk => chunk.when }
+
 
   // Gets the duration of all workchunks between two dates
   def getSpendableTimeDuring(start: DateTime, end: DateTime): Duration = 
@@ -100,9 +106,9 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
       timeToSpend += getSpendableTimeDuring(curScheduleStart, task.dueDate) - 
         task.duration
 
-      if (timeToSpend <= params.minBufferTime) {
+      if (timeToSpend < params.minBufferTime) {
         // Fail if we don't have enough of a time buffer to meet this deadline
-        Left(new NotEnoughTimeError(
+        return Left(new NotEnoughTimeError(
           0.seconds - timeToSpend, // subtraction because time is negative
           Some(task)
         ))
@@ -119,8 +125,26 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     if (a < b) a else b
 
 
-  private def createEvent(task: Task, chunk: WorkChunk): Event =
-    new Event(task, chunk.when, min(task.timeRemaining, chunk.duration))
+  private def createEvent(
+      task: Task, 
+      chunk: WorkChunk, 
+      elapsed: Duration
+  ): Event =
+    new Event(task, chunk.when + elapsed, min(task.timeRemaining, chunk.duration))
+
+
+  private def findBestTask(time: Duration): Option[Task] = {
+    for (task <- tasks.filter(_.completedDuring.isEmpty)) {
+      // Select the first task that isn't completed which we can finish
+      // or make meaningful progress on
+      if (task.timeRemaining <= time || 
+          time >= params.rampUpPeriod) {
+        return Some(task)
+      }
+    }
+
+    None
+  }
 
 
   // Schedule events into workchunks
@@ -130,41 +154,58 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     hasEnoughTime match {
       // If hasEnoughTime failed, propogate the error
       case Left(err) => return Left(err)
+      case Right(_)  => // do nothing
     }
 
-    var available = workChunks
-    var toSchedule = tasks
+    // Loop through each work chunk
+    for (chunk <- workChunks) {
+      var timeRemaining = chunk.duration
 
-    // TODO(sandy): this will do stupid things for task.duration << chunk.duration
-    while (toSchedule.length != 0) {
-      // Using "def" so we get a reference to toSchedule.head
-      def task = toSchedule.head
+      // Scala doesn't have break, so we will cheat =)
+      object Break extends Exception { }
 
-      val chunkOption = available.headOption
-      if (chunkOption == None) {
-        // Ran out of chunks to schedule in
-        return Left(new NotEnoughTimeError(task.duration, Some(task)))
-      }
+      try {
+      // As long as we have time, keep fitting tasks into this chunk
+      while (timeRemaining > 0.seconds) {
+        val task = findBestTask(timeRemaining) match {
+          case Some(x) => x
 
-      val chunk = chunkOption.get
-      if (task.dueDate < chunk.when) {
-        // Missed our deadline =(
-        return Left(new MissedDeadlineError(task))
-      }
+          // No more tasks can fit in this chunk, so exit
+          case None    => throw Break
+        }
 
-      available = available.tail
+        // Make an event to work on this task
+        val event = createEvent(task, chunk, chunk.duration - timeRemaining)
+        results :+= event
 
-      // Schedule this work chunk as an event
-      val event = createEvent(task, chunk)
-      results :+= event
+        // Update chunk and task for the work done
+        val timeSpent = min(timeRemaining, task.timeRemaining)
+        timeRemaining = timeRemaining - timeSpent
+        task.timeRemaining = task.timeRemaining - timeSpent
 
-      task.timeRemaining = task.timeRemaining - event.duration
-      if (task.timeRemaining <= 0.seconds) {
-        // Task is finished, onwards!
-        toSchedule = toSchedule.tail
+        if (task.timeRemaining <= 0.seconds) {
+          // Task was finished -- tell it when
+          task.completedDuring = Some(chunk)
+        }
+      }} catch {
+        case Break => // do nothing
       }
     }
 
+    // Ensure all of our constraints are still met
+    for (task <- tasks) {
+      task.completedDuring match {
+        // If a task is finished, make sure it was done before its due date
+        case Some(chunk) => if (task.dueDate <= chunk.when) {
+          return Left(new MissedDeadlineError(task))
+        }
+
+        // If a task wasn't finished, that's a problem
+        case None => 
+          return Left(new NotEnoughTimeError(task.timeRemaining, Some(task)))
+      }
+    }
+    
     Right(results)
   }
 }
