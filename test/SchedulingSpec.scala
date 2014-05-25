@@ -22,6 +22,7 @@ object Mock {
   def makeTask(whenInFuture: Duration, duration: Duration) =
     new Task("test", DateTime.now + whenInFuture, duration, 0)
 
+  val productivity1h = getWorkChunks(1)
   val productivity5h = getWorkChunks(5)
   val productivity10h = getWorkChunks(10)
 
@@ -35,7 +36,22 @@ object Mock {
   )
 
   val tasks5hDeadline = List(
-    makeTask(5.hours, 4.hours)
+    makeTask(5.hours, 5.hours)
+  )
+
+  val tasksLotsOfSmall = List(
+    makeTask(24.hours, 30.minutes),
+    makeTask(24.hours, 10.minutes),
+    makeTask(24.hours, 10.minutes),
+    makeTask(24.hours, 10.minutes)
+  )
+
+  val tasksLotsOfSmallAndBig = List(
+    makeTask(24.hours, 30.minutes),
+    makeTask(24.hours, 10.minutes),
+    makeTask(24.hours, 10.minutes),
+    makeTask(24.hours, 10.minutes),
+    makeTask(8.hours, 2.hours)
   )
 }
 
@@ -43,20 +59,32 @@ object Mock {
 @RunWith(classOf[JUnitRunner])
 class SchedulingSpec extends Specification {
   "Scheduler" should {
-    "not be able to finish 10h work in 5h time" in {
-      new Scheduler(Mock.tasks10h, Mock.productivity5h).hasEnoughTime must beFalse
-    }
-
-    "1h work in 5h time" in {
-      new Scheduler(Mock.tasks1h, Mock.productivity5h).hasEnoughTime must beTrue
+    "not have enough time for 10h work in 5h time" in {
+      new Scheduler(Mock.tasks10h, Mock.productivity5h).hasEnoughTime must beLeft
     }
 
     "not have enough time before 5h deadline" in {
-      new Scheduler(Mock.tasks5hDeadline, Mock.productivity10h).hasEnoughTime must beFalse
+      new Scheduler(Mock.tasks5hDeadline, Mock.productivity10h).hasEnoughTime must beLeft
     }
 
-    "successfully schedule" in {
-      new Scheduler(Mock.tasks1h, Mock.productivity5h).doScheduling must beSome
+    "schedule 1h task in 5h time" in {
+      new Scheduler(Mock.tasks1h, Mock.productivity5h).doScheduling must beRight
+    }
+
+    "schedule small tasks into 1h" in {
+      val result = new Scheduler(Mock.tasksLotsOfSmall, Mock.getWorkChunks(2)).doScheduling
+      result match {
+        case Left(_)  => result must beRight
+        case Right(events) => events must haveSize(4)
+      }
+    }
+
+    "schedule small tasks + big into 3 events" in {
+      val result = new Scheduler(Mock.tasksLotsOfSmallAndBig, Mock.getWorkChunks(5)).doScheduling
+      result match {
+        case Left(_)  => result must beRight
+        case Right(events) => events must haveSize(6)
+      }
     }
   }
 }
