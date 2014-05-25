@@ -32,7 +32,7 @@ object TaskController extends Controller {
       val title = Form(
         "title" -> text
       ).bindFromRequest.get
-      
+
       val description = Form(
         "description" -> text
       ).bindFromRequest.get
@@ -40,7 +40,7 @@ object TaskController extends Controller {
       val dueDateString = Form(
         "dueDate" -> text
       ).bindFromRequest.get
-      
+
       val estimatedTimeNumber = Form(
         "estimatedTime" -> number
       ).bindFromRequest.get
@@ -58,7 +58,8 @@ object TaskController extends Controller {
         BadRequest
       }
       else {
-        val task = new Task(title = title, description = Some(description), dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
+        val task = new Task(title = title, description = Some(description),
+            dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
         DB.withSession { implicit session =>
             TableQuery[TaskModel] += task
         }
@@ -73,9 +74,9 @@ object TaskController extends Controller {
       }
       Ok
     }
-    
+
     def editTitle(id:Int) = Action { implicit session =>
-      
+
       val title = Form(
         "title" -> text
       ).bindFromRequest.get

@@ -8,13 +8,13 @@ import com.github.nscala_time.time.Imports._
 
 import utils.DateConversions._
 
-case class Task(id: Option[Int] = None, title: String, description: Option[String] = None, dueDate: Option[DateTime] = None, estimatedTime: Option[Duration] = None)
+case class Task(id: Option[Int] = None, title: String, description: Option[String] = None,
+         dueDate: Option[DateTime] = None, estimatedTime: Option[Duration] = None)
 
 object Task {
   implicit val implicitDurationWrites = new Writes[Duration] {
-    def writes(duration: Duration): JsValue = 
+    def writes(duration: Duration): JsValue =
       JsNumber(duration.millis)
-    
   }
 
   implicit val implicitTaskWrites = new Writes[Task] {
