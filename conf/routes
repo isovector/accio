@@ -20,3 +20,5 @@ GET     /api/tasks                  controllers.TaskController.list
 POST    /api/tasks                  controllers.TaskController.create
 DELETE  /api/tasks/:id              controllers.TaskController.delete(id: Int)
 POST	/api/tasks/:id   	    controllers.TaskController.editTitle(id: Int)
+
+POST    /api/schedule               controllers.SchedulingController.create

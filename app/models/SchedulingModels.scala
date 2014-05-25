@@ -3,26 +3,15 @@ package models.scheduling
 import scala.collection.immutable._
 import com.github.nscala_time.time.Imports._
 
+import models._
 
 // ========== DATA MODEL ==========
 
-// Something we want to accomplish
-class Task(
-    cname: String, 
-    cdueDate: DateTime, 
-    cduration: Duration, 
-    cimportance: Int) {
-  val name = cname
-  val dueDate = cdueDate
-  val duration = cduration
-  var timeRemaining = cduration
-  val importance = cimportance
-
-  var completedDuring: Option[WorkChunk] = None
+object SchedulingTypedefs {
+  type WorkChunk = Event
 }
 
-// Scheduled time for Getting Shit Done
-case class WorkChunk(when: DateTime, duration: Duration)
+import SchedulingTypedefs._
 
 // Helper functions for dealing with lists of WorkChunks
 class WorkChunkList(chunks: Seq[WorkChunk]) {
@@ -31,10 +20,6 @@ class WorkChunkList(chunks: Seq[WorkChunk]) {
     (time, chunk) => time + chunk.duration
   )
 }
-
-// A scheduled event
-case class Event(task: Task, when: DateTime, duration: Duration)
-
 
 // ========== ERRORS ==========
 
@@ -58,7 +43,7 @@ class NotEnoughTimeError(time: Duration, task: Option[Task])
 class MissedDeadlineError(task: Task) extends SchedulingError {
   val error = "Missed deadline"
   val offendingTask = Some(task)
-  val necessaryTime = Some(task.duration)
+  val necessaryTime = task.estimatedTime
 }
 
 
@@ -81,8 +66,11 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     val rampUpPeriod = 20 minutes
   }
 
+  // Only look at tasks with schedulable details
+  val tasks = allTasks.filter(
+    x => !x.dueDate.isEmpty && !x.estimatedTime.isEmpty
+  ).sortBy  { task => task.dueDate }
 
-  val tasks      = allTasks.sortBy  { task => task.dueDate }
   val workChunks = allChunks.sortBy { chunk => chunk.when }
 
 
@@ -103,8 +91,8 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     var timeToSpend: Duration = 0.seconds
 
     for (task <- tasks) {
-      timeToSpend += getSpendableTimeDuring(curScheduleStart, task.dueDate) - 
-        task.duration
+      timeToSpend += getSpendableTimeDuring(curScheduleStart, task.dueDate.get) - 
+        task.estimatedTime.get
 
       if (timeToSpend < params.minBufferTime) {
         // Fail if we don't have enough of a time buffer to meet this deadline
@@ -114,7 +102,7 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
         ))
       }
 
-      curScheduleStart = task.dueDate
+      curScheduleStart = task.dueDate.get
     }
 
     Right(true)
@@ -130,7 +118,12 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
       chunk: WorkChunk, 
       elapsed: Duration
   ): Event =
-    new Event(task, chunk.when + elapsed, min(task.timeRemaining, chunk.duration))
+    new Event(
+      task = Some(task), 
+      eventType = EventType.Bewitched, 
+      when = chunk.when + elapsed, 
+      duration = min(task.timeRemaining, chunk.duration)
+    )
 
 
   private def findBestTask(time: Duration): Option[Task] = {
@@ -196,7 +189,7 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     for (task <- tasks) {
       task.completedDuring match {
         // If a task is finished, make sure it was done before its due date
-        case Some(chunk) => if (task.dueDate <= chunk.when) {
+        case Some(chunk) => if (task.dueDate.get <= chunk.when) {
           return Left(new MissedDeadlineError(task))
         }
 
