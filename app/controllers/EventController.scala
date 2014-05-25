@@ -32,65 +32,44 @@ object EventController extends Controller {
     }
 
     def create = Action { implicit request =>
-        val title = Form(
-            "title" -> text
+        val taskID = Form(
+            "task" -> optional(number)
+        ).bindFromRequest.get
+
+        val when = Form(
+            "when" -> text
+        ).bindFromRequest.get
+
+        val duration = Form(
+            "duration" -> number
+        ).bindFromRequest.get
+
+        val where = Form(
+            "where" -> optional(text)
         ).bindFromRequest.get
 
         val description = Form(
-            "description" -> text
+            "description" -> optional(text)
         ).bindFromRequest.get
 
-        val dueDateString = Form(
-            "dueDate" -> text
-        ).bindFromRequest.get
-
-        val estimatedTimeNumber = Form(
-        "estimatedTime" -> number
-      ).bindFromRequest.get
-
-      val estimatedTime = new Duration(estimatedTimeNumber)
-
-      // TODO: change to proper date time formatter
-      var dueDate : DateTime = DateTime.now
-      if (dueDateString != "") {
-         val dateFormatter = DateTimeFormat.forPattern("yyyyMMdd")
-         dueDate =  dateFormatter.parseDateTime(dueDateString)
-      }
-
-      if (title isEmpty) {
-          BadRequest
-      }
-      else {
-            val event = new Event(
-                title = title,
-                description = Some(description),
-                dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
-            DB.withSession { implicit session =>
-                TableQuery[EventModel] += task
-            }
-
-            Ok
-      }
-    }
-
-
-    def editTitle(id:Int) = Action { implicit session =>
-        val title = Form(
-            "title" -> text
-        ).bindFromRequest.get
-
-        if (title isEmpty) {
-            BadRequest
+        val task = taskID match {
+            case Some(id) =>
+               TaskController.findByID(id)
+            case None =>
+                None
         }
-        else {
-            Console.println(title)
-            // TODO: put description and date
-            val task = new Task(id = Some(id), title = title, description = Some(""))
-            DB.withSession { implicit session =>
-                TableQuery[EventModel].filter(_.id === task.id.get).update(task)
-            }
 
-            Ok
+        val event = new Event(
+            task = task,
+            when = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parseDateTime(when),
+            duration = new Duration(duration),
+            where = where.getOrElse(""),
+            description = description.getOrElse(""))
+
+        DB.withSession { implicit session =>
+            TableQuery[EventModel] += event
         }
+
+        Ok
     }
 }
