@@ -33,24 +33,22 @@ object EventController extends Controller {
 
     def create = Action { implicit request =>
         case class EventFormData(
-          taskId: Option[Int],
-          when: String,
-          duration: Long,
-          where: Option[String],
-          description: Option[String],
-          eventType: String
+            taskId: Option[Int],
+            when: String,
+            duration: Long,
+            where: Option[String],
+            description: Option[String],
+            eventType: String
         )
 
-        val formData = Form(
-          mapping(
+        val formData = Form(mapping(
             "task" -> optional(number),
             "when" -> text,
             "duration" -> longNumber,
             "where" -> optional(text),
             "description" -> optional(text),
             "eventType" -> text
-          )(EventFormData.apply)(EventFormData.unapply)
-        ).bindFromRequest.get
+        )(EventFormData.apply)(EventFormData.unapply)).bindFromRequest.get
 
         val task = formData.taskId match {
             case Some(id) =>

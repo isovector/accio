@@ -9,9 +9,9 @@ import play.api.Play.current
 import utils.DateConversions._
 
 object EventType extends Enumeration {
-  val Normal    = Value("Normal")
-  val Scheduled = Value("Scheduled")
-  val WorkChunk = Value("WorkChunk") 
+    val Normal    = Value("Normal")
+    val Scheduled = Value("Scheduled")
+    val WorkChunk = Value("WorkChunk") 
 }
 
 case class Event(
@@ -23,17 +23,17 @@ case class Event(
     where: String = "",
     description: String = ""
 ) {
-  def insert() = { 
-    // Ensure this Event hasn't already been put into the database
-    id match {
-      case None => throw new CloneNotSupportedException
-      case _ => // do nothing
-    }
+    def insert() = { 
+        // Ensure this Event hasn't already been put into the database
+        id match {
+            case Some(_) => throw new CloneNotSupportedException
+            case None => // do nothing
+        }
 
-    DB.withSession { implicit session =>
-      TableQuery[EventModel] += this 
+        DB.withSession { implicit session =>
+            TableQuery[EventModel] += this 
+        }
     }
-  }
 }
 
 object Event {
@@ -66,10 +66,10 @@ object Event {
 
 class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
     implicit def implicitEventTypeColumnMapper = 
-      MappedColumnType.base[EventType.Value, String](
-        etv => etv.toString,
-        s => EventType.withName(s)
-      )
+        MappedColumnType.base[EventType.Value, String](
+            etv => etv.toString,
+            s => EventType.withName(s)
+        )
 
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     def eventType = column[EventType.Value]("eventType")
