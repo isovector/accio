@@ -32,31 +32,27 @@ object EventController extends Controller {
     }
 
     def create = Action { implicit request =>
-        val taskID = Form(
-            "task" -> optional(number)
-        ).bindFromRequest.get
+        case class EventFormData(
+          taskId: Option[Int],
+          when: String,
+          duration: Long,
+          where: Option[String],
+          description: Option[String],
+          eventType: String
+        )
 
-        val when = Form(
-            "when" -> text
-        ).bindFromRequest.get
-
-        val duration = Form(
-            "duration" -> number
-        ).bindFromRequest.get
-
-        val where = Form(
-            "where" -> optional(text)
-        ).bindFromRequest.get
-
-        val description = Form(
-            "description" -> optional(text)
-        ).bindFromRequest.get
-
-        val eventType = Form(
+        val formData = Form(
+          mapping(
+            "task" -> optional(number),
+            "when" -> text,
+            "duration" -> longNumber,
+            "where" -> optional(text),
+            "description" -> optional(text),
             "eventType" -> text
+          )(EventFormData.apply)(EventFormData.unapply)
         ).bindFromRequest.get
 
-        val task = taskID match {
+        val task = formData.taskId match {
             case Some(id) =>
                TaskController.findByID(id)
             case None =>
@@ -65,15 +61,14 @@ object EventController extends Controller {
 
         val event = new Event(
             task = task,
-            when = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parseDateTime(when),
-            duration = new Duration(duration),
-            where = where.getOrElse(""),
-            eventType = EventType.withName(eventType),
-            description = description.getOrElse(""))
+            when = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parseDateTime(formData.when),
+            duration = new Duration(formData.duration),
+            where = formData.where.getOrElse(""),
+            eventType = EventType.withName(formData.eventType),
+            description = formData.description.getOrElse("")
+        )
 
-        DB.withSession { implicit session =>
-            TableQuery[EventModel] += event
-        }
+        event.insert()
 
         Ok
     }

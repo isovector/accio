@@ -4,6 +4,8 @@ import com.github.nscala_time.time.Imports._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.db.slick.Config.driver.simple._
+import play.api.db.slick.DB
+import play.api.Play.current
 import utils.DateConversions._
 
 object EventType extends Enumeration {
@@ -20,7 +22,19 @@ case class Event(
     duration: Duration,
     where: String = "",
     description: String = ""
-)
+) {
+  def insert() = { 
+    // Ensure this Event hasn't already been put into the database
+    id match {
+      case None => throw new CloneNotSupportedException
+      case _ => // do nothing
+    }
+
+    DB.withSession { implicit session =>
+      TableQuery[EventModel] += this 
+    }
+  }
+}
 
 class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
     implicit def implicitEventTypeColumnMapper = 
