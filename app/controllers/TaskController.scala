@@ -50,7 +50,7 @@ object TaskController extends Controller {
       // TODO: change to proper date time formatter
       var dueDate : DateTime = DateTime.now
       if (dueDateString != "") {
-         val dateFormatter = DateTimeFormat.forPattern("yyyyMMdd")
+         val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-ddTHH:mm:ss.SSSZ")
          dueDate =  dateFormatter.parseDateTime(dueDateString)
       }
 
