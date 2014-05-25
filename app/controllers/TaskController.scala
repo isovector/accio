@@ -11,7 +11,6 @@ import com.github.nscala_time.time.Imports._
 import models._
 import scala.collection.mutable.HashMap
 import play.api.db.slick.Config.driver.simple._
-import utils.DateConversions._
 
 object TaskController extends Controller {
 
