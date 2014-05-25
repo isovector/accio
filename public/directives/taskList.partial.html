@@ -1,0 +1,11 @@
+<div class="task-list">
+	<ul>
+		<li class="task-item" ng-repeat="task in tasks">
+			{{task.title}} <button ng-click="deleteTask(task.id)">DELETE</button>
+		</li>
+	</ul>
+	<form ng-submit="createTask()">
+		<button>Add Task</button>
+	</form>
+	<div task-detail selected-task="selectedTask" ng-show="selectedTask"></div>
+</div>

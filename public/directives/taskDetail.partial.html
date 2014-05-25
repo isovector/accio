@@ -1,0 +1,43 @@
+<div class="task-detail">	
+	<h3 ng-show="!task.editMode">{{task.name}}</h3>
+
+	<div class="row" ng-show="task.editMode">
+		<h4 class="col-md-4 col-md-offset-2">Title:</h4>
+		<div class="col-md-6">
+			<input ng-model="task.name" />
+		</div>
+	</div>
+
+
+	<div class="row">
+		<h4 class="col-md-4 col-md-offset-2">Description:</h4>
+
+		<div class="col-md-6">
+			<span ng-show="!task.editMode">{{task.description}}</span>
+			<input ng-show="task.editMode" ng-model="task.description" />
+		</div>
+	</div>
+
+	<div class="row">
+		<h4 class="col-md-4 col-md-offset-2">Due Date:</h4>
+
+		<div class="col-md-6">
+			<span ng-show="!task.editMode">{{task.dueDate}}</span>
+			<input ng-show="task.editMode" ng-model="task.dueDate" />
+		</div>
+
+		
+	</div>
+
+	<div class="row">
+		<h4 class="col-md-4 col-md-offset-2">Estimated Time:</h4>
+
+		<div class="col-md-6">
+			<span ng-show="!task.editMode">{{task.estimatedTime}}</span>
+			<input ng-show="task.editMode" ng-model="task.estimatedTime" />
+		</div>
+	</div>
+
+	<button ng-click="saveTask()" ng-show="task.editMode">Save</button>
+	<button ng-click="editTask()" ng-show="!task.editMode">Edit</button>
+</div>
