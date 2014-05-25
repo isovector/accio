@@ -24,6 +24,7 @@ accioApp.factory('Task', ['$resource', function($resource){
 		return $resource('api/tasks/:taskId', {}, {
 			getTasks: {method:'GET', isArray:true},
 			createTask: {method:'POST', params: {title : '@title'}},
+                        editTaskTitle: {method:'POST', params: {title : '@title'}}
 			//deleteTask: {method:'DELETE', params: {"taskId" : taskId}}
 		});
 	}
@@ -52,6 +53,7 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 
 	var emptyTask = {name : "", 
 		description : "", 
+                dueDate : "",
 		estimatedTime : 0,
 		subtasks : null,
 		editMode : true};
@@ -64,6 +66,14 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 		//Set our selected task to our new task so it can be edited
 		$scope.selectedTask = angular.copy(emptyTask);
 	}
+
+        $scope.editTaskTitle = function(id) {
+                //This will be the real post parameter
+                //"{title : 'hello world'}"
+                $http.post('api/tasks/'+id).success(function() {
+                        $scope.update();
+                });
+        }
 
 	$scope.deleteTask = function(id) {
 		$http.delete('api/tasks/'+id).success(function() {
@@ -115,7 +125,7 @@ accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task,
 			scope.saveTask = function() {
 				//Task.createTask
 				//For now, just send a task with the title so the server will accept it
-				var serverTask = {title : scope.task.name};
+				var serverTask = {title : scope.task.name, description: scope.task.description, dueDate : scope.task.dueDate, estimatedTime: scope.task.estimatedTime};
 				console.log(serverTask);
 				$http.post('api/tasks', serverTask).success(function(data) {
 					console.log(data);
