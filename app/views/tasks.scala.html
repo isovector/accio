@@ -19,16 +19,11 @@
 </header>
 
 <body ng-controller="TaskCtrl">
-	<div class="col-md-4">
-		<categoryList></categoryList>
+	<div class="col-md-5">
+		<div category-list></div>
 	</div>
-	<div class="col-md-8">
-		<button ng-click="addTask()">Add Task</button>
-		<input ng-model="task.title"/>
-		<ul>
-			<li ng-repeat="task in tasks"><input ng-model="task.title" ng-text={{task.title}} /> <button ng-click="deleteTask(task.id)">DELETE</button> <button ng-click="editTaskTitle(task)">EDIT</button></li>
-		</ul>
+	<div class="col-md-7">
+		<div task-list></div>		
 	</div>
-	
 </body>
 </html>

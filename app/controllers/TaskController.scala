@@ -7,6 +7,8 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.db.slick.DB
 import play.api.Play.current
+import com.github.nscala_time.time.Imports._
+
 
 import models._
 
@@ -30,12 +32,24 @@ object TaskController extends Controller {
       val title = Form(
         "title" -> text
       ).bindFromRequest.get
+      
+      val description = Form(
+        "description" -> text
+      ).bindFromRequest.get
+
+      val dueDateString = Form(
+        "dueDate" -> text
+      ).bindFromRequest.get
+      
+      // TODO: change to proper date time formatter
+      val dateFormatter = DateTimeFormat.forPattern("yyyyMMdd")
+      val dueDate : Long =  dateFormatter.parseMillis(dueDateString);
 
       if (title isEmpty) {
         BadRequest
       }
       else {
-        val task = new Task(title = title)
+        val task = new Task(title = title, description = Some(description), dueDateTimeStamp = Some(dueDate))
         DB.withSession { implicit session =>
             TableQuery[TaskModel] += task
         }
@@ -62,7 +76,8 @@ object TaskController extends Controller {
       }
       else {
         Console.println(title)
-        val task = new Task(id = Some(id), title = title)
+        // TODO: put description and date
+        val task = new Task(id = Some(id), title = title, description = Some(""))
         DB.withSession { implicit session =>
             TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
         }
