@@ -18,13 +18,15 @@ object Task {
         def writes(duration: Duration): JsValue = JsNumber(duration.millis)
     }
 
+    val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+
     implicit val implicitTaskWrites = new Writes[Task] {
         def writes(task: Task): JsValue = {
             Json.obj(
               "id" -> task.id.get,
               "title" -> task.title,
               "description" -> task.description,
-              "dueDate" -> task.dueDate,
+              "dueDate" -> dateFormatter.print(task.dueDate.get.getMillis),
               "estimatedTime" -> task.estimatedTime)
         }
     }

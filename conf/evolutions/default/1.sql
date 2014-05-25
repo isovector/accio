@@ -4,8 +4,8 @@
 # --- !Ups
 
 create table "Dad" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"name" VARCHAR(254) NOT NULL);
-create table "Event" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"task" INTEGER,"start" TIMESTAMP NOT NULL,"duration" BIGINT NOT NULL,"where" VARCHAR(254) NOT NULL,"description" VARCHAR(254) NOT NULL);
-create table "Task" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"title" VARCHAR(254) NOT NULL,"description" VARCHAR(254),"dueDate" TIMESTAMP,"estimatedTime" BIGINT);
+create table "Event" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"task" INTEGER,"start" VARCHAR(254) NOT NULL,"duration" BIGINT NOT NULL,"where" VARCHAR(254) NOT NULL,"description" VARCHAR(254) NOT NULL);
+create table "Task" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"title" VARCHAR(254) NOT NULL,"description" VARCHAR(254),"dueDate" VARCHAR(254),"estimatedTime" BIGINT);
 
 # --- !Downs
 
