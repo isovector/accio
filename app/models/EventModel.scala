@@ -8,7 +8,7 @@ import utils.DateConversions._
 
 object EventType extends Enumeration {
   val Normal    = Value("Normal")
-  val Bewitched = Value("Bewitched")
+  val Scheduled = Value("Scheduled")
   val WorkChunk = Value("WorkChunk") 
 }
 

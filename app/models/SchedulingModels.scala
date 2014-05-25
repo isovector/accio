@@ -120,7 +120,7 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
   ): Event =
     new Event(
       task = Some(task), 
-      eventType = EventType.Bewitched, 
+      eventType = EventType.Scheduled, 
       when = chunk.when + elapsed, 
       duration = min(task.timeRemaining, chunk.duration)
     )
