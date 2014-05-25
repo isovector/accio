@@ -31,10 +31,17 @@ object Event {
 
     implicit val implicitEventWrites = new Writes[Event] {
         def writes(event: Event): JsValue = {
+            val taskID = event.task match {
+                case Some(task) =>
+                    task.id 
+                case None =>
+                    None 
+            }
+
             Json.obj(
               "id" -> event.id.get,
               "eventType" -> event.eventType.toString,
-              "task" -> event.task.get,
+              "task" -> taskID,
               "when" -> dateFormatter.print(event.when.getMillis),
               "duration" -> event.duration,
               "where" -> event.where,
