@@ -19,3 +19,4 @@ dist
 *.swm
 *.swo
 *.db
+*.DS_Store

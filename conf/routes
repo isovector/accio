@@ -15,5 +15,5 @@ GET     /ws                         controllers.ChatExample.index
 # REST API
 GET     /api/tasks                  controllers.TaskController.list
 POST    /api/tasks                  controllers.TaskController.create
-DELETE  /api/tasks/:id              controllers.TaskController.delete(id: Long)
+DELETE  /api/tasks/:id              controllers.TaskController.delete(id: Int)
 

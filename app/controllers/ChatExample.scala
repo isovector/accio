@@ -12,17 +12,17 @@ object ChatExample extends Controller {
     val (broadcast, bchannel) = Concurrent.broadcast[String]
 
     // called when we get a client
-    def index = WebSocket.using[String] { request => 
+    def index = WebSocket.using[String] { request =>
         // make a channel to only talk to our client
         val (rawout, channel) = Concurrent.broadcast[String]
 
         // route broadcast channel through our output channel
         val out = broadcast interleave rawout
-        
+
         val in = Iteratee.foreach[String] { msg =>
             // this block is called for every message we receive
             println(msg)
-            
+
             // echo it back through the broadcast (ie to everyone)
             bchannel push msg
         }.mapDone { _ =>
