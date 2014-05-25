@@ -4,9 +4,8 @@
 			{{task.title}} <button ng-click="deleteTask(task.id)">DELETE</button>
 		</li>
 	</ul>
-	<form ng-submit="addTask()">
-		<input ng-model="task.title"/>
+	<form ng-submit="createTask()">
 		<button>Add Task</button>
 	</form>
-	<div task-detail></div>
+	<div task-detail selected-task="selectedTask" ng-show="selectedTask"></div>
 </div>
