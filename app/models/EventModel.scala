@@ -36,6 +36,34 @@ case class Event(
   }
 }
 
+object Event {
+    implicit val implicitDurationWrites = new Writes[Duration] {
+        def writes(duration: Duration): JsValue = JsNumber(duration.millis)
+    }
+
+    val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+
+    implicit val implicitEventWrites = new Writes[Event] {
+        def writes(event: Event): JsValue = {
+            val taskID = event.task match {
+                case Some(task) =>
+                    task.id 
+                case None =>
+                    None 
+            }
+
+            Json.obj(
+              "id" -> event.id.get,
+              "eventType" -> event.eventType.toString,
+              "task" -> taskID,
+              "when" -> dateFormatter.print(event.when.getMillis),
+              "duration" -> event.duration,
+              "where" -> event.where,
+              "description" -> event.description)
+        }
+    }
+}
+
 class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
     implicit def implicitEventTypeColumnMapper = 
       MappedColumnType.base[EventType.Value, String](
@@ -50,7 +78,7 @@ class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
     def duration = column[Duration]("duration")
     def where = column[String]("where")
     def description = column[String]("description")
-
+    def event = Event.apply _
     def * = (
       id.?, 
       eventType, 
@@ -59,5 +87,5 @@ class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
       duration, 
       where, 
       description
-    ) <> (Event.tupled, Event.unapply _)
+    ) <> (event.tupled, Event.unapply _)
 }
