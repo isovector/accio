@@ -23,7 +23,7 @@
 
 		<div class="col-md-6">
 			<span ng-show="!task.editMode">{{task.dueDate}}</span>
-			<input ng-show="task.editMode" ng-model="task.dueDate" />
+			<datepicker ng-model="task.dueDate" ng-show="task.editMode" class="well well-sm"></datepicker>
 		</div>
 
 		
