@@ -1,5 +1,25 @@
 var accioApp = angular.module('accioApp', ['ngResource', 'ui.bootstrap']);
 
+/*accioApp.config(["$routeProvider", function($routeprovider){
+	return $routeProvider
+		.when('/', {
+			templateUrl: 'views/tasks.scala.html',
+			controller: 'TaskCtrl'
+		})
+		.when('/calendar', {
+			templateUrl: 'views/calendar',
+			controller: 'CalendarCtrl'
+		})
+		.when('/testroute', {
+			templateUrl: 'views/broken',
+			//controller: 'CalendarCtrl'
+		})
+		.otherwise({
+			redirectTo: '/'
+		})
+	});*/
+		
+
 accioApp.factory('Task', ['$resource', function($resource){
 		return $resource('api/tasks/:taskId', {}, {
 			getTasks: {method:'GET', isArray:true},
@@ -70,7 +90,7 @@ accioApp.directive('categoryList', function() {
 		}
 
 	}
-})
+});
 
 accioApp.directive('taskList', function() {
 	return {
@@ -80,7 +100,7 @@ accioApp.directive('taskList', function() {
 		replace: true,
 		templateUrl: "/assets/directives/taskList.partial.html"
 	}
-})
+});
 
 accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task, $http, TaskService) {
 	return {
@@ -109,4 +129,4 @@ accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task,
 			}
 		}	
 	}
-}])
+}]);
