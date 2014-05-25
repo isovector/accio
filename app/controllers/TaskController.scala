@@ -41,15 +41,24 @@ object TaskController extends Controller {
         "dueDate" -> text
       ).bindFromRequest.get
       
+      val estimatedTimeNumber = Form(
+        "estimatedTime" -> number
+      ).bindFromRequest.get
+
+      val estimatedTime = new Duration(estimatedTimeNumber)
+
       // TODO: change to proper date time formatter
-      val dateFormatter = DateTimeFormat.forPattern("yyyyMMdd")
-      val dueDate : Long =  dateFormatter.parseMillis(dueDateString);
+      var dueDate : DateTime = DateTime.now
+      if (dueDateString != "") {
+         val dateFormatter = DateTimeFormat.forPattern("yyyyMMdd")
+         dueDate =  dateFormatter.parseDateTime(dueDateString)
+      }
 
       if (title isEmpty) {
         BadRequest
       }
       else {
-        val task = new Task(title = title, description = Some(description), dueDateTimeStamp = Some(dueDate))
+        val task = new Task(title = title, description = Some(description), dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
         DB.withSession { implicit session =>
             TableQuery[TaskModel] += task
         }

@@ -105,7 +105,7 @@ accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task,
 			scope.saveTask = function() {
 				//Task.createTask
 				//For now, just send a task with the title so the server will accept it
-				var serverTask = {title : scope.task.name, description: scope.task.description, dueDate : scope.task.date};
+				var serverTask = {title : scope.task.name, description: scope.task.description, dueDate : scope.task.dueDate, estimatedTime: scope.task.estimatedTime};
 				console.log(serverTask);
 				$http.post('api/tasks', serverTask).success(function(data) {
 					console.log(data);
