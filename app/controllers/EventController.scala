@@ -52,6 +52,10 @@ object EventController extends Controller {
             "description" -> optional(text)
         ).bindFromRequest.get
 
+        val eventType = Form(
+            "eventType" -> text
+        ).bindFromRequest.get
+
         val task = taskID match {
             case Some(id) =>
                TaskController.findByID(id)
@@ -64,6 +68,7 @@ object EventController extends Controller {
             when = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parseDateTime(when),
             duration = new Duration(duration),
             where = where.getOrElse(""),
+            eventType = EventType.withName(eventType),
             description = description.getOrElse(""))
 
         DB.withSession { implicit session =>
