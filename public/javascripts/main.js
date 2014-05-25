@@ -1,4 +1,4 @@
-var accioApp = angular.module('accioApp', ['ngResource', 'ui.bootstrap']);
+var accioApp = angular.module('accioApp', ['ngResource', 'ui.bootstrap', 'ui-rangeSlider']);
 
 /*accioApp.config(["$routeProvider", function($routeprovider){
 	return $routeProvider
@@ -54,7 +54,7 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 	var emptyTask = {id : -1,
                 name : "", 
 		description : "", 
-                dueDate : "",
+        dueDate : "",
 		estimatedTime : 0,
 		subtasks : null,
 		editMode : true};
@@ -80,6 +80,9 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 
 	$scope.$on('tasks.update', function (event) {
 		$scope.tasks = TaskService.tasks;
+		if (!$scope.selectedTask) {
+			$scope.selectedTask = $scope.tasks[0];
+		};
 	})
 
 	$scope.update();

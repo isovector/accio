@@ -1,16 +1,18 @@
 <div class="task-list">
-	<ul>
-		<li class="task-item" ng-repeat="task in tasks">
+	<ul class="list-group">
+		<li class="task-item list-group-item" ng-repeat="task in tasks">
 			<span ng-click="selectTask(task)">
 				{{task.title}}
 			</span>
-			<button ng-click="deleteTask(task.id)">
+			<button type="button" class="btn btn-warning" ng-click="deleteTask(task.id)">
 				DELETE
 			</button>
 		</li>
 	</ul>
-	<form ng-submit="createTask()">
-		<button>Add Task</button>
-	</form>
+	<div class="clearfix">
+		<form ng-submit="createTask()">
+			<button class="btn btn-primary col-md-12">Add Task</button>
+		</form>
+	</div>
 	<div task-detail selected-task="selectedTask" ng-show="selectedTask"></div>
 </div>
