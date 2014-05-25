@@ -1,4 +1,4 @@
-var accioApp = angular.module('accioApp', ['ngResource']);
+var accioApp = angular.module('accioApp', ['ngResource', 'ui.bootstrap']);
 
 accioApp.factory('Task', ['$resource', function($resource){
 		return $resource('api/tasks/:taskId', {}, {
@@ -91,7 +91,7 @@ accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task,
 			task : '=selectedTask'
 		},
 		link: function(scope, element, attributes) {
-			
+
 			scope.saveTask = function() {
 				//Task.createTask
 				//For now, just send a task with the title so the server will accept it
