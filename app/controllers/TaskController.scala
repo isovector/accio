@@ -8,10 +8,7 @@ import play.api.data.Forms._
 import play.api.db.slick.DB
 import play.api.Play.current
 import com.github.nscala_time.time.Imports._
-
-
 import models._
-
 import scala.collection.mutable.HashMap
 import play.api.db.slick.Config.driver.simple._
 
@@ -19,80 +16,81 @@ object TaskController extends Controller {
 
     // TODO: get tasks for a specific user
     def list = Action {
-      val existingTasks = DB.withSession { implicit session =>
-        TableQuery[TaskModel].list
-      }
-      Ok(
-        Json.toJson( existingTasks )
-      ).as("text/text")
-
+        val existingTasks = DB.withSession { implicit session =>
+            TableQuery[TaskModel].list
+        }
+        Ok(
+            Json.toJson( existingTasks )
+        ).as("text/text")
     }
 
     def create = Action { implicit request =>
-      val title = Form(
-        "title" -> text
-      ).bindFromRequest.get
+        // TODO: switch to this when we figure out mapping properly
+        /*val form = Form(mapping(
+            "id" -> optional(number),
+            "title" -> text,
+            "description" -> optional(text),
+            "dueDate" -> optional(date),
+            "estimatedTime" -> optional(longNumber)
+        )(Task.apply)(Task.unapply)) */
 
-      val description = Form(
-        "description" -> text
-      ).bindFromRequest.get
+        val id = Form(
+            "id" -> number
+        ).bindFromRequest.get
 
-      val dueDateString = Form(
-        "dueDate" -> text
-      ).bindFromRequest.get
+        val title = Form(
+            "title" -> text
+        ).bindFromRequest.get
 
-      val estimatedTimeNumber = Form(
-        "estimatedTime" -> number
-      ).bindFromRequest.get
+        val description = Form(
+            "description" -> text
+        ).bindFromRequest.get
 
-      val estimatedTime = new Duration(estimatedTimeNumber)
+        val dueDateString = Form(
+            "dueDate" -> text
+        ).bindFromRequest.get
 
-      // TODO: change to proper date time formatter
-      var dueDate : DateTime = DateTime.now
-      if (dueDateString != "") {
-         val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-ddTHH:mm:ss.SSSZ")
-         dueDate =  dateFormatter.parseDateTime(dueDateString)
-      }
+        val estimatedTimeNumber = Form(
+            "estimatedTime" -> number
+        ).bindFromRequest.get
 
-      if (title isEmpty) {
-        BadRequest
-      }
-      else {
-        val task = new Task(title = title, description = Some(description),
-            dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
-        DB.withSession { implicit session =>
-            TableQuery[TaskModel] += task
+        val estimatedTime = new Duration(estimatedTimeNumber)
+
+        var dueDate : DateTime = DateTime.now
+        if (dueDateString != "") {
+            val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            dueDate =  dateFormatter.parseDateTime(dueDateString)
         }
 
-        Ok
-      }
+        if (title isEmpty) {
+            BadRequest
+        } else {
+            if (id == -1) {
+                val task = new Task(title = title, description = Some(description),
+                    dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
+                DB.withSession { implicit session =>
+                    TableQuery[TaskModel] += task
+                }
+            } else {
+                val task = new Task(id = Some(id), title = title, description = Some(description),
+                    dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
+                DB.withSession { implicit session =>
+                    TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
+                }
+            }
+            Ok
+        }
     }
 
     def delete(id: Int) = Action {
-      val drop = DB.withSession { implicit session =>
-          TableQuery[TaskModel].where(_.id === id).delete
-      }
-      Ok
-    }
-
-    def editTitle(id:Int) = Action { implicit session =>
-
-      val title = Form(
-        "title" -> text
-      ).bindFromRequest.get
-
-      if (title isEmpty) {
-        BadRequest
-      }
-      else {
-        Console.println(title)
-        // TODO: put description and date
-        val task = new Task(id = Some(id), title = title, description = Some(""))
-        DB.withSession { implicit session =>
-            TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
+        val drop = DB.withSession { implicit session =>
+            TableQuery[TaskModel].where(_.id === id).delete
         }
-
         Ok
-      }
     }
+
+    def findByID(id: Int): Option[Task] =
+        DB.withSession { implicit session =>
+            TableQuery[TaskModel].filter(_.id === id).firstOption
+        }
 }

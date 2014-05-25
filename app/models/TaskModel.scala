@@ -8,6 +8,7 @@ import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import com.github.nscala_time.time.Imports._
 
+import controllers.TaskController
 import utils.DateConversions._
 
 case class Task(id: Option[Int] = None, title: String, description: Option[String] = None,
@@ -31,8 +32,15 @@ object Task {
 
     implicit val implicitTaskColumnMapper = MappedColumnType.base[Task, Int](
         t => t.id.get,
-        i => TaskModel.findOneByID(i).get
+        i => TaskController.findByID(i).get
     )
+
+  class RichTask(underlying: Task) {
+    var timeRemaining: Duration = underlying.estimatedTime.getOrElse(1.hours)
+    var completedDuring: Option[Event] = None
+  }
+
+  implicit def task2RichTask(underlying: Task): RichTask = new RichTask(underlying)
 }
 
 class TaskModel(tag: Tag) extends Table[Task](tag, "Task") {
@@ -43,11 +51,4 @@ class TaskModel(tag: Tag) extends Table[Task](tag, "Task") {
     def estimatedTime = column[Option[Duration]]("estimatedTime")
     val task = Task.apply _
     def * = (id.?, title, description, dueDate, estimatedTime) <> (task.tupled, Task.unapply _)
-}
-
-object TaskModel {
-    def findOneByID(id: Int): Option[Task] =
-        DB.withSession { implicit session =>
-            TableQuery[TaskModel].filter(_.id === id).firstOption
-        }
 }

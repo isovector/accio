@@ -1,4 +1,4 @@
-var accioApp = angular.module('accioApp', ['ngResource', 'ui.bootstrap']);
+var accioApp = angular.module('accioApp', ['ngResource', 'ui.bootstrap', 'ui-rangeSlider']);
 
 /*accioApp.config(["$routeProvider", function($routeprovider){
 	return $routeProvider
@@ -51,9 +51,10 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 	$scope.tasks = [];
 	$scope.selectedTask = null;
 
-	var emptyTask = {name : "", 
+	var emptyTask = {id : -1,
+                name : "", 
 		description : "", 
-                dueDate : "",
+        dueDate : "",
 		estimatedTime : 0,
 		subtasks : null,
 		editMode : true};
@@ -67,14 +68,6 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 		$scope.selectedTask = angular.copy(emptyTask);
 	}
 
-        $scope.editTaskTitle = function(id) {
-                //This will be the real post parameter
-                //"{title : 'hello world'}"
-                $http.post('api/tasks/'+id).success(function() {
-                        $scope.update();
-                });
-        }
-
 	$scope.deleteTask = function(id) {
 		$http.delete('api/tasks/'+id).success(function() {
 			$scope.update();
@@ -87,6 +80,9 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 
 	$scope.$on('tasks.update', function (event) {
 		$scope.tasks = TaskService.tasks;
+		if (!$scope.selectedTask) {
+			$scope.selectedTask = $scope.tasks[0];
+		};
 	})
 
 	$scope.update();
@@ -129,7 +125,7 @@ accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task,
 			scope.saveTask = function() {
 				//Task.createTask
 				//For now, just send a task with the title so the server will accept it
-				var serverTask = {title : scope.task.name, description: scope.task.description, dueDate : scope.task.dueDate, estimatedTime: scope.task.estimatedTime};
+				var serverTask = {id : scope.task.id, title : scope.task.name, description: scope.task.description, dueDate : scope.task.dueDate, estimatedTime: scope.task.estimatedTime};
 				console.log(serverTask);
 				$http.post('api/tasks', serverTask).success(function(data) {
 					console.log(data);

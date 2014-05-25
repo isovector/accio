@@ -4,7 +4,7 @@
 	<div class="row" ng-show="task.editMode">
 		<h4 class="col-md-4 col-md-offset-2">Title:</h4>
 		<div class="col-md-6">
-			<input ng-model="task.name" />
+			<input ng-model="task.title" />
 		</div>
 	</div>
 
@@ -14,7 +14,7 @@
 
 		<div class="col-md-6">
 			<span ng-show="!task.editMode">{{task.description}}</span>
-			<input ng-show="task.editMode" ng-model="task.description" />
+			<textarea ng-show="task.editMode" ng-model="task.description"> </textarea>
 		</div>
 	</div>
 
@@ -22,7 +22,7 @@
 		<h4 class="col-md-4 col-md-offset-2">Due Date:</h4>
 
 		<div class="col-md-6">
-			<span ng-show="!task.editMode">{{task.dueDate}}</span>
+			<span ng-show="!task.editMode">{{task.dueDate | date }}</span>
 			<datepicker ng-model="task.dueDate" ng-show="task.editMode" class="well well-sm"></datepicker>
 		</div>
 
@@ -33,11 +33,16 @@
 		<h4 class="col-md-4 col-md-offset-2">Estimated Time:</h4>
 
 		<div class="col-md-6">
-			<span ng-show="!task.editMode">{{task.estimatedTime}}</span>
-			<input ng-show="task.editMode" ng-model="task.estimatedTime" />
+			<span ng-show="!task.editMode">{{task.estimatedTime}} Minutes</span>
+			<div ng-show="task.editMode">
+				<span>{{task.estimatedTime}} Minutes</span>
+				<div range-slider min="0" max="240" 
+				model-max="task.estimatedTime" pin-handle="min"
+				 step="15" show-values="false"></div>
+			</div>
 		</div>
 	</div>
 
-	<button ng-click="saveTask()" ng-show="task.editMode">Save</button>
-	<button ng-click="editTask()" ng-show="!task.editMode">Edit</button>
+	<button class="btn btn-success" ng-click="saveTask()" ng-show="task.editMode">Save</button>
+	<button class="btn btn-primary" ng-click="editTask()" ng-show="!task.editMode">Edit</button>
 </div>
