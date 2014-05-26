@@ -33,20 +33,22 @@ object EventController extends Controller {
 
     def create = Action { implicit request =>
         case class EventFormData(
+            eventId: Option[Int],
             taskId: Option[Int],
             startTime: String,
             endTime: String,
             where: Option[String],
-            description: Option[String],
+            text: Option[String],
             eventType: String
         )
 
         val formData = Form(mapping(
+            "id" -> optional(number),
             "task" -> optional(number),
             "start_date" -> text,
             "end_date" -> text,
             "where" -> optional(text),
-            "description" -> optional(text),
+            "text" -> optional(text),
             "eventType" -> text
         )(EventFormData.apply)(EventFormData.unapply)).bindFromRequest.get
 
@@ -57,16 +59,21 @@ object EventController extends Controller {
         val dateMatcher = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
         val event = new Event(
+            id = formData.eventId,
             task = task,
             startTime = dateMatcher.parseDateTime(formData.startTime),
             endTime = dateMatcher.parseDateTime(formData.endTime),
             where = formData.where.getOrElse(""),
             eventType = EventType.withName(formData.eventType),
-            description = formData.description.getOrElse("")
+            description = formData.text.getOrElse("")
         )
-
-        event.insert()
-
+        if (event.id.isEmpty) {
+            event.insert()
+        } else {
+            DB.withSession { implicit session =>
+                TableQuery[EventModel].filter(_.id === event.id.get).update(event)
+            }
+        }
         Ok(
             Json.toJson( event )
         ).as("text/text")
