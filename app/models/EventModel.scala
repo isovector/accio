@@ -58,10 +58,10 @@ object Event {
               "id" -> event.id.get,
               "eventType" -> event.eventType.toString,
               "task" -> taskID,
-              "startTime" -> dateFormatter.print(event.startTime.getMillis),
-              "endTime" -> dateFormatter.print(event.endTime.getMillis),
+              "start_date" -> dateFormatter.print(event.startTime.getMillis),
+              "end_date" -> dateFormatter.print(event.endTime.getMillis),
               "where" -> event.where,
-              "description" -> event.description)
+              "text" -> event.description)
         }
     }
 }
