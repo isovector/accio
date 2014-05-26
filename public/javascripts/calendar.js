@@ -26,7 +26,7 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
                     scope.events[cur_ev] = ev;
                 } else {
                     ev.id = null;
-                    ev.eventType = "Normal"; 
+                    ev.eventType = "WorkChunk"; 
                 }
 
                 $http.post('api/events', ev).success(function (data) {
@@ -72,7 +72,18 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
                     });
                     (scope.events.length > 0) ? scope.addEvents(scope.events) : console.log("no events from api");
                 });
-            }           
+            } 
+
+            scope.runScheduler = function() {
+                $http.post('api/schedule').success(function (data) {
+                    scope.events = data;
+                    _.forEach(scope.events, function (ev) {
+                        ev.start_date = $filter('date')(ev.start_date, "dd-MM-yyyy HH:mm");
+                        ev.end_date = $filter('date')(ev.end_date, "dd-MM-yyyy HH:mm");
+                    });
+                    (scope.events.length > 0) ? scope.addEvents(scope.events) : console.log("no events from api");
+                });
+            }          
         }
     }
 
