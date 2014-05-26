@@ -29,11 +29,11 @@ accioApp.directive('calendar', ['$http', function ($http) {
 
             scheduler.init('scheduler_here', new Date(), "month");
 
-            scheduler.attachEvent("onEventSave", function (id, ev) {
+            scheduler.attachEvents(["onEventSave", "onEventChanged", "onEventAdded"], function (id, ev) {
                 ev["id"] = id;
                 console.log(ev);
-                if ((cur_event = _.findIndex(scope.events, { 'id': id })) != -1) {
-                    events[cur_ev] = ev;
+                if ((cur_ev = _.findIndex(scope.events, { 'id': id })) != -1) {
+                    scope.events[cur_ev] = ev;
                 } else {
                     scope.events.push(ev);
                 }

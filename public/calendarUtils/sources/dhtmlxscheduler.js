@@ -893,14 +893,28 @@ dtmlXMLLoaderObject.prototype.doSerialization=function(xmlDoc){
  *   @type: private
  */
 dhtmlxEventable=function(obj){
-	obj.attachEvent=function(name, catcher, callObj){
+    obj.attachEvent = function (name, catcher, callObj) {
 		name='ev_'+name.toLowerCase();
 		if (!this[name])
 			this[name]=new this.eventCatcher(callObj||this);
 
 		return(name+':'+this[name].addEvent(catcher)); //return ID (event name & event ID)
 	}
-	obj.callEvent=function(name, arg0){
+	obj.attachEvents = function (names, catcher, callObj) {
+	    console.log("attaching events: " + names);
+	    console.log(names);
+	    for (var i = 0; i < names.length; i++){
+	        console.log(names[i]);
+	        names[i] = 'ev_' + names[i].toLowerCase();
+	        console.log(names[i]);
+	        if (!this[names[i]])
+	            this[names[i]] = new this.eventCatcher(callObj || this);
+
+	        this[names[i]].addEvent(catcher); //return ID (event name & event ID)
+	    }
+	}
+	obj.callEvent = function (name, arg0) {
+	    console.log(name);
 		name='ev_'+name.toLowerCase();
 		if (this[name])
 			return this[name].apply(this, arg0);
