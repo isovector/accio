@@ -71,13 +71,13 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     x => !x.dueDate.isEmpty && !x.estimatedTime.isEmpty
   ).sortBy  { task => task.dueDate }
 
-  val workChunks = allChunks.sortBy { chunk => chunk.when }
+  val workChunks = allChunks.sortBy { chunk => chunk.startTime }
 
 
   // Gets the duration of all workchunks between two dates
   def getSpendableTimeDuring(start: DateTime, end: DateTime): Duration = 
     workChunks.filter(
-      chunk => start <= chunk.when && chunk.when < end
+      chunk => start <= chunk.startTime && chunk.startTime < end
     ).spendableTime
 
 
@@ -117,13 +117,16 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
       task: Task, 
       chunk: WorkChunk, 
       elapsed: Duration
-  ): Event =
-    new Event(
-      task = Some(task), 
-      eventType = EventType.Scheduled, 
-      when = chunk.when + elapsed, 
-      duration = min(task.timeRemaining, chunk.duration)
-    )
+  ): Event = {
+        val start: DateTime = chunk.startTime + elapsed
+
+        new Event(
+          task = Some(task), 
+          eventType = EventType.Scheduled, 
+          startTime = start, 
+          endTime = start + min(task.timeRemaining, chunk.duration)
+        )
+    }
 
 
   private def findBestTask(time: Duration): Option[Task] = {
@@ -189,7 +192,7 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
     for (task <- tasks) {
       task.completedDuring match {
         // If a task is finished, make sure it was done before its due date
-        case Some(chunk) => if (task.dueDate.get <= chunk.when) {
+        case Some(chunk) => if (task.dueDate.get <= chunk.startTime) {
           return Left(new MissedDeadlineError(task))
         }
 
