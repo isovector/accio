@@ -18,11 +18,13 @@ case class Event(
     id: Option[Int] = None,
     eventType: EventType.Value = EventType.Normal,
     task: Option[Task] = None,
-    when: DateTime,
-    duration: Duration,
+    startTime: DateTime,
+    endTime: DateTime,
     where: String = "",
     description: String = ""
 ) {
+    val duration: Duration = new Duration(startTime, endTime)
+
     def insert() = { 
         // Ensure this Event hasn't already been put into the database
         id match {
@@ -56,10 +58,10 @@ object Event {
               "id" -> event.id.get,
               "eventType" -> event.eventType.toString,
               "task" -> taskID,
-              "when" -> dateFormatter.print(event.when.getMillis),
-              "duration" -> event.duration,
+              "start_date" -> dateFormatter.print(event.startTime.getMillis),
+              "end_date" -> dateFormatter.print(event.endTime.getMillis),
               "where" -> event.where,
-              "description" -> event.description)
+              "text" -> event.description)
         }
     }
 }
@@ -75,7 +77,7 @@ class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
     def eventType = column[EventType.Value]("eventType")
     def task = column[Option[Task]]("task")
     def start = column[DateTime]("start")
-    def duration = column[Duration]("duration")
+    def end = column[DateTime]("end")
     def where = column[String]("where")
     def description = column[String]("description")
     def event = Event.apply _
@@ -84,7 +86,7 @@ class EventModel(tag: Tag) extends Table[Event](tag, "Event") {
       eventType, 
       task, 
       start, 
-      duration, 
+      end, 
       where, 
       description
     ) <> (event.tupled, Event.unapply _)

@@ -1,7 +1,7 @@
 <div class="task-list">
 	<ul class="list-group">
-		<li class="task-item list-group-item" ng-repeat="task in tasks">
-			<span ng-click="selectTask(task)">
+		<li class="task-item list-group-item" ng-repeat="task in tasks" ng-click="selectTask(task)">
+			<span>
 				{{task.title}}
 			</span>
 			<button type="button" class="btn btn-warning" ng-click="deleteTask(task.id)">

@@ -34,8 +34,8 @@ object EventController extends Controller {
     def create = Action { implicit request =>
         case class EventFormData(
             taskId: Option[Int],
-            when: String,
-            duration: Long,
+            startTime: String,
+            endTime: String,
             where: Option[String],
             description: Option[String],
             eventType: String
@@ -43,8 +43,8 @@ object EventController extends Controller {
 
         val formData = Form(mapping(
             "task" -> optional(number),
-            "when" -> text,
-            "duration" -> longNumber,
+            "start_date" -> text,
+            "end_date" -> text,
             "where" -> optional(text),
             "description" -> optional(text),
             "eventType" -> text
@@ -57,10 +57,12 @@ object EventController extends Controller {
                 None
         }
 
+        val dateMatcher = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+
         val event = new Event(
             task = task,
-            when = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parseDateTime(formData.when),
-            duration = new Duration(formData.duration),
+            startTime = dateMatcher.parseDateTime(formData.startTime),
+            endTime = dateMatcher.parseDateTime(formData.endTime),
             where = formData.where.getOrElse(""),
             eventType = EventType.withName(formData.eventType),
             description = formData.description.getOrElse("")

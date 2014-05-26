@@ -1,0 +1,46 @@
+ACCIO YELP PRESENTATION
+-Problem statement:
+	-Help people get things done
+		-putting things in a calendar can really help actually finishing it
+		-get that "back burner" stuff back into your work cycle
+		-be more productive!
+-Demo:
+	-Create tasks, add due dates and duration stuff
+	-create work blocks
+	-schedule it on the calendar with magic!
+
+-Current finished tasks and next steps:
+	Joel Test:
+		-Play framework helps us in a lot of ways
+			-Repo layout for free
+			-Build system auto-detects and recompiles
+			-Test harness with ScalaTest
+			-No bug db yet
+
+	-Already build exploratory prototype
+		-Backend should be flexible for multiple different UI implementations
+
+	-Design decisions
+		-Play framework with scala was the big bet
+		-AngularJS for front end was good choice, we have experience and is probably the most popular framework out there
+
+	-Productivity
+		-Hella productive!
+			-~800 lines of scala code
+			-200-300 lines of HTML
+			-~200 lines of JS 
+
+	Roadmap:
+		-Finished in prototype:
+			-Ability to add tasks
+				-add, edit delete
+			-Ability to add work blocks
+			-Basic scheduling algorithms
+
+		-Next steps:
+			-Formalize UI
+			-Flesh out some of the web pages, get some better UI
+			-Create next generation scheduling algorithm
+				-Not just time constraints, what is important to you?
+				-Give people choices, then remember from their choices
+
