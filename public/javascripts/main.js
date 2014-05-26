@@ -52,7 +52,7 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 	$scope.selectedTask = null;
 
 	var emptyTask = {id : -1,
-                name : "", 
+                title : "", 
 		description : "", 
         dueDate : "",
 		estimatedTime : 0,
@@ -124,8 +124,7 @@ accioApp.directive('taskDetail', ['Task', '$http', 'TaskService', function(Task,
 
 			scope.saveTask = function() {
 				//Task.createTask
-				//For now, just send a task with the title so the server will accept it
-				var serverTask = {id : scope.task.id, title : scope.task.name, description: scope.task.description, dueDate : scope.task.dueDate, estimatedTime: scope.task.estimatedTime};
+				var serverTask = {id : scope.task.id, title : scope.task.title, description: scope.task.description, dueDate : scope.task.dueDate, estimatedTime: scope.task.estimatedTime};
 				console.log(serverTask);
 				$http.post('api/tasks', serverTask).success(function(data) {
 					console.log(data);
