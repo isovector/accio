@@ -3,23 +3,11 @@ accioApp.controller('CalendarCtrl', ['$scope', '$http', function($scope, $http) 
         $scope.tasks = [];
         $scope.task = {title : "calnder"};
 
-        $scope.test = function(){
-                alert("jj");
-        }
-
-        
-        //scheduler.init('scheduler_here', new Date(), "month");
-
-        
-
-        //$scope.scheduler = scheduler;
 }]);
 
 accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
     return {
-        //Only apply this directive to elements with this name
         restrict: 'A',
-        //replace the element with the template
         replace: true,
         templateUrl: "/assets/directives/calendar.partial.html",
         link: function (scope, element, attributes) {
@@ -29,36 +17,42 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
 
             scheduler.init('scheduler_here', new Date(), "month");
 
-            scheduler.attachEvents(["onEventSave", "onEventChanged"], function (id, ev) {
+            // Just attaching to save for now - will have to handle onEventChange and onEventAdd later
+            scheduler.attachEvents(["onEventSave"], function (id, ev) {
                 console.log(ev);
+                id = parseInt(id);
+                ev.id = id;
                 if ((cur_ev = _.findIndex(scope.events, { 'id': id })) != -1) {
                     scope.events[cur_ev] = ev;
-
                 } else {
-                    ev.id = "-1";
-                    ev.eventType = "Normal";
-                    
+                    ev.id = null;
+                    ev.eventType = "Normal"; 
                 }
-                // Callback to events.add api here. sth like below
+
                 $http.post('api/events', ev).success(function (data) {
                     if (data.id != id) {
                         scheduler.changeEventId(id, data.id);
                         scope.events.push(data);
+                        console.log(data);
                     }
-                    console.log(data);
                 });
+                ev.id = id;
                 return true;
             })
 
-            //scheduler.attachEvent("onEventDeleted", function (id, ev) {
-                //console.log("The id: " + id);
-                //console.log(ev);
-                //return true;
-            //})
+            // Deleting local event copy and database copy on deletion from calendar
+            scheduler.attachEvent("onEventDeleted", function (id, ev) {
+                id = parseInt(id);
+                $http.delete('api/events/'+id).success(function (data) {
+                    scope.events = _.without(scope.events, _.findWhere(scope.events, { id: id }));
+                    console.log(data);
+                })
+                return true;
+            })
 
-            // Exposing add/delete event(s)
+            // Exposing add event(s)
             scope.addEvent = function (ev) {
-                scheduler.addEvent(ev);
+                scheduler.addEvent(ev.start_date, ev.end_date, ev.text, ev.id);
             }
 
             scope.addEvents = function (evs) {
@@ -78,11 +72,7 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
                     });
                     (scope.events.length > 0) ? scope.addEvents(scope.events) : console.log("no events from api");
                 });
-                
-
-            }
-            // on button click get events from server
-            // and then parse them to calendar              
+            }           
         }
     }
 
