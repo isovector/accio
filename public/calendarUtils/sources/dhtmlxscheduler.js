@@ -3389,7 +3389,7 @@ scheduler.addEvent = function(start_date, end_date, text, id, extra_data) {
 		this.callEvent(is_new ? "onEventAdded" : "onEventChanged", [ev.id, ev]);
 	return ev.id;
 };
-scheduler.deleteEvent = function(id, silent) {
+scheduler.deleteEvent = function (id, silent) {
 	var ev = this._events[id];
 	if (!silent && (!this.callEvent("onBeforeEventDelete", [id, ev]) || !this.callEvent("onConfirmedBeforeEventDelete", [id, ev])))
 		return;

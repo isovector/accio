@@ -15,7 +15,7 @@ accioApp.controller('CalendarCtrl', ['$scope', '$http', function($scope, $http) 
         //$scope.scheduler = scheduler;
 }]);
 
-accioApp.directive('calendar', ['$http', function ($http) {
+accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
     return {
         //Only apply this directive to elements with this name
         restrict: 'A',
@@ -29,20 +29,32 @@ accioApp.directive('calendar', ['$http', function ($http) {
 
             scheduler.init('scheduler_here', new Date(), "month");
 
-            scheduler.attachEvents(["onEventSave", "onEventChanged", "onEventAdded"], function (id, ev) {
-                ev["id"] = id;
+            scheduler.attachEvents(["onEventSave", "onEventChanged"], function (id, ev) {
                 console.log(ev);
                 if ((cur_ev = _.findIndex(scope.events, { 'id': id })) != -1) {
                     scope.events[cur_ev] = ev;
+
                 } else {
-                    scope.events.push(ev);
+                    ev.id = "-1";
+                    ev.eventType = "Normal";
+                    
                 }
                 // Callback to events.add api here. sth like below
                 $http.post('api/events', ev).success(function (data) {
+                    if (data.id != id) {
+                        scheduler.changeEventId(id, data.id);
+                        scope.events.push(data);
+                    }
                     console.log(data);
                 });
                 return true;
             })
+
+            //scheduler.attachEvent("onEventDeleted", function (id, ev) {
+                //console.log("The id: " + id);
+                //console.log(ev);
+                //return true;
+            //})
 
             // Exposing add/delete event(s)
             scope.addEvent = function (ev) {
@@ -50,8 +62,8 @@ accioApp.directive('calendar', ['$http', function ($http) {
             }
 
             scope.addEvents = function (evs) {
-                for (ev in evs) {
-                    scope.addEvent(ev);
+                for (var i = 0; i < evs.length; i++) {
+                    scope.addEvent(evs[i]);
                 }
             }
 
@@ -60,8 +72,13 @@ accioApp.directive('calendar', ['$http', function ($http) {
                 $http.get('api/events').success(function (data) {
                     console.log(data);
                     scope.events = data;
+                    _.forEach(scope.events, function (ev) {
+                        ev.start_date = $filter('date')(ev.start_date, "dd-MM-yyyy HH:mm");
+                        ev.end_date = $filter('date')(ev.end_date, "dd-MM-yyyy HH:mm");
+                    });
+                    (scope.events.length > 0) ? scope.addEvents(scope.events) : console.log("no events from api");
                 });
-                (scope.events.length > 0) ? scope.addEvents(events) : console.log("no events from api");
+                
 
             }
             // on button click get events from server
