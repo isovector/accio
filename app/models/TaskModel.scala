@@ -23,8 +23,11 @@ case class Task(var id: Option[Int] = None, title: String, description: Option[S
 
         DB.withSession { implicit session =>
             id = Some((TableQuery[TaskModel] returning TableQuery[TaskModel].map(_.id)) += this)
-	}
+	    }
     }
+
+    var timeRemaining: Duration = estimatedTime.getOrElse(0.seconds)
+    var completedDuring: Option[Event] = None
 }
 
 object Task {
@@ -49,13 +52,6 @@ object Task {
         t => t.id.get,
         i => TaskController.findByID(i).get
     )
-
-  class RichTask(underlying: Task) {
-    var timeRemaining: Duration = underlying.estimatedTime.getOrElse(1.hours)
-    var completedDuring: Option[Event] = None
-  }
-
-  implicit def task2RichTask(underlying: Task): RichTask = new RichTask(underlying)
 }
 
 class TaskModel(tag: Tag) extends Table[Task](tag, "Task") {

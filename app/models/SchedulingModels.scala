@@ -2,6 +2,9 @@ package models.scheduling
 
 import scala.collection.immutable._
 import com.github.nscala_time.time.Imports._
+import play.api.db.slick.Config.driver.simple._
+import play.api.db.slick.DB
+import play.api.Play.current
 
 import models._
 
@@ -69,6 +72,8 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
   // Only look at tasks with schedulable details
   val tasks = allTasks.filter(
     x => !x.dueDate.isEmpty && !x.estimatedTime.isEmpty
+  ).filter(
+    x => x.dueDate.get >= DateTime.now
   ).sortBy  { task => task.dueDate }
 
   val workChunks = allChunks.sortBy { chunk => chunk.startTime }
@@ -121,6 +126,7 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
         val start: DateTime = chunk.startTime + elapsed
 
         new Event(
+          description = task.title,
           task = Some(task), 
           eventType = EventType.Scheduled, 
           startTime = start, 
@@ -152,6 +158,7 @@ class Scheduler(allTasks: Seq[Task], allChunks: Seq[WorkChunk]) {
       case Left(err) => return Left(err)
       case Right(_)  => // do nothing
     }
+
 
     // Loop through each work chunk
     for (chunk <- workChunks) {
