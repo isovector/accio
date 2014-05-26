@@ -11,8 +11,21 @@ import com.github.nscala_time.time.Imports._
 import controllers.TaskController
 import utils.DateConversions._
 
-case class Task(id: Option[Int] = None, title: String, description: Option[String] = None,
-         dueDate: Option[DateTime] = None, estimatedTime: Option[Duration] = None)
+case class Task(var id: Option[Int] = None, title: String, description: Option[String] = None,
+         dueDate: Option[DateTime] = None, estimatedTime: Option[Duration] = None) {
+    
+    def insert() = {
+        // Ensure this Event hasn't already been put into the database
+        id match {
+            case Some(_) => throw new CloneNotSupportedException
+            case None => // do nothing
+        }
+
+        DB.withSession { implicit session =>
+            id = Some((TableQuery[TaskModel] returning TableQuery[TaskModel].map(_.id)) += this)
+	}
+    }
+}
 
 object Task {
     implicit val implicitDurationWrites = new Writes[Duration] {
@@ -24,11 +37,11 @@ object Task {
     implicit val implicitTaskWrites = new Writes[Task] {
         def writes(task: Task): JsValue = {
             Json.obj(
-              "id" -> task.id.get,
-              "title" -> task.title,
-              "description" -> task.description,
-              "dueDate" -> dateFormatter.print(task.dueDate.get.getMillis),
-              "estimatedTime" -> task.estimatedTime)
+                "id" -> task.id.get,
+                "title" -> task.title,
+                "description" -> task.description,
+                "dueDate" -> task.dueDate.map(date => dateFormatter.print(date.getMillis)),
+                "estimatedTime" -> task.estimatedTime)
         }
     }
 

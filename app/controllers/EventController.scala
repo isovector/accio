@@ -50,12 +50,9 @@ object EventController extends Controller {
             "eventType" -> text
         )(EventFormData.apply)(EventFormData.unapply)).bindFromRequest.get
 
-        val task = formData.taskId match {
-            case Some(id) =>
-               TaskController.findByID(id)
-            case None =>
-                None
-        }
+        val task = formData.taskId.flatMap(
+            id => TaskController.findByID(id)
+        )
 
         val dateMatcher = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
@@ -70,6 +67,8 @@ object EventController extends Controller {
 
         event.insert()
 
-        Ok
+        Ok(
+            Json.toJson( event )
+        ).as("text/text")
     }
 }
