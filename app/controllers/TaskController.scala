@@ -59,7 +59,7 @@ object TaskController extends Controller {
                     description = formData.description,
                     dueDate = dueDate,
                     estimatedTime = estimatedTime)
-                if (!task.id.isEmpty || task.id.get == -1) {
+                if (task.id.isEmpty || task.id.get == -1) {
                     DB.withSession { implicit session =>
                         TableQuery[TaskModel] += task
                     }
