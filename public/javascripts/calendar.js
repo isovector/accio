@@ -19,7 +19,6 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
 
             // Just attaching to save for now - will have to handle onEventChange and onEventAdd later
             scheduler.attachEvents(["onEventSave"], function (id, ev) {
-                console.log(ev);
                 id = parseInt(id);
                 ev.id = id;
                 if ((cur_ev = _.findIndex(scope.events, { 'id': id })) != -1) {
@@ -29,11 +28,11 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
                     ev.eventType = "WorkChunk"; 
                 }
 
-                $http.post('api/events', ev).success(function (data) {
+                var serverEvent = jQuery.extend(true, {}, ev);
+                $http.post('api/events', serverEvent).success(function (data) {
                     if (data.id != id) {
                         scheduler.changeEventId(id, data.id);
                         scope.events.push(data);
-                        console.log(data);
                     }
                 });
                 ev.id = id;
@@ -45,7 +44,6 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
                 id = parseInt(id);
                 $http.delete('api/events/'+id).success(function (data) {
                     scope.events = _.without(scope.events, _.findWhere(scope.events, { id: id }));
-                    console.log(data);
                 })
                 return true;
             })
@@ -64,7 +62,6 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
             // Getting events from api, setting our events object, and adding to calendar
             scope.getEvents = function () {
                 $http.get('api/events').success(function (data) {
-                    console.log(data);
                     scope.events = data;
                     _.forEach(scope.events, function (ev) {
                         ev.start_date = $filter('date')(ev.start_date, "dd-MM-yyyy HH:mm");
