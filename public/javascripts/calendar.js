@@ -22,7 +22,8 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
                 id = parseInt(id);
                 ev.id = id;
                 if ((cur_ev = _.findIndex(scope.events, { 'id': id })) != -1) {
-                    scope.events[cur_ev] = ev;
+                    _.extend(scope.events[cur_ev], ev);
+                    ev = scope.events[cur_ev];
                 } else {
                     ev.id = null;
                     ev.eventType = "WorkChunk"; 
