@@ -59,16 +59,14 @@ object TaskController extends Controller {
                     description = formData.description,
                     dueDate = dueDate,
                     estimatedTime = estimatedTime)
-                if (task.id.isEmpty || task.id.get == -1) {
-                    DB.withSession { implicit session =>
-                        TableQuery[TaskModel] += task
-                    }
+                if (task.id.isEmpty) {
+                    task.insert()
                 } else {
                     DB.withSession { implicit session =>
                         TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
                     }
                 }
-                Ok
+                Ok( Json.toJson(task) ).as("text/text")
             }
         } catch {
             case e: IllegalArgumentException => BadRequest

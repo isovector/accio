@@ -51,7 +51,7 @@ accioApp.controller('TaskCtrl', ['$scope', '$http', 'TaskService', function($sco
 	$scope.tasks = [];
 	$scope.selectedTask = null;
 
-	var emptyTask = {id : -1,
+	var emptyTask = {id : null,
                 title : "", 
 		description : "", 
         dueDate : "",
