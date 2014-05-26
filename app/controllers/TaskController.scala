@@ -12,6 +12,14 @@ import models._
 import scala.collection.mutable.HashMap
 import play.api.db.slick.Config.driver.simple._
 
+case class TaskFormData(
+    id: Option[Int],
+    title: String,
+    description: Option[String],
+    dueDate: Option[String],
+    estimatedTime: Option[Long]
+)
+
 object TaskController extends Controller {
 
     // TODO: get tasks for a specific user
@@ -25,60 +33,45 @@ object TaskController extends Controller {
     }
 
     def create = Action { implicit request =>
-        // TODO: switch to this when we figure out mapping properly
-        /*val form = Form(mapping(
+        val formData = Form(mapping(
             "id" -> optional(number),
             "title" -> text,
             "description" -> optional(text),
-            "dueDate" -> optional(date),
+            "dueDate" -> optional(text),
             "estimatedTime" -> optional(longNumber)
-        )(Task.apply)(Task.unapply)) */
+        )(TaskFormData.apply)(TaskFormData.unapply)).bindFromRequest.get
 
-        val id = Form(
-            "id" -> number
-        ).bindFromRequest.get
+        val estimatedTime = formData.estimatedTime.map(
+            time => new Duration(time)
+        )
 
-        val title = Form(
-            "title" -> text
-        ).bindFromRequest.get
+        try {
+            val dueDate = formData.dueDate.map(
+                date => DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parseDateTime(date)
+            )
 
-        val description = Form(
-            "description" -> text
-        ).bindFromRequest.get
-
-        val dueDateString = Form(
-            "dueDate" -> text
-        ).bindFromRequest.get
-
-        val estimatedTimeNumber = Form(
-            "estimatedTime" -> number
-        ).bindFromRequest.get
-
-        val estimatedTime = new Duration(estimatedTimeNumber)
-
-        var dueDate : DateTime = DateTime.now
-        if (dueDateString != "") {
-            val dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-            dueDate =  dateFormatter.parseDateTime(dueDateString)
-        }
-
-        if (title isEmpty) {
-            BadRequest
-        } else {
-            if (id == -1) {
-                val task = new Task(title = title, description = Some(description),
-                    dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
-                DB.withSession { implicit session =>
-                    TableQuery[TaskModel] += task
-                }
+            if (formData.title isEmpty) {
+                BadRequest
             } else {
-                val task = new Task(id = Some(id), title = title, description = Some(description),
-                    dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
-                DB.withSession { implicit session =>
-                    TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
+                val task = new Task(
+                    id = formData.id,
+                    title = formData.title,
+                    description = formData.description,
+                    dueDate = dueDate,
+                    estimatedTime = estimatedTime)
+                if (!task.id.isEmpty || task.id.get == -1) {
+                    DB.withSession { implicit session =>
+                        TableQuery[TaskModel] += task
+                    }
+                } else {
+                    DB.withSession { implicit session =>
+                        TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
+                    }
                 }
+                Ok
             }
-            Ok
+        } catch {
+            case e: IllegalArgumentException => BadRequest
         }
     }
 
