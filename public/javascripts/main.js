@@ -96,7 +96,7 @@ accioApp.directive('categoryList', function() {
 		replace: true,
 		templateUrl: "/assets/directives/categoryList.partial.html",
 		link: function(scope, element, attributes) {
-			scope.categories = ["EAT", "SLEEP", "RAVE", "REPEAT"];
+			scope.categories = ["All Tasks", "Homework", "Errands", "Programming Projects"];
 		}
 
 	}
