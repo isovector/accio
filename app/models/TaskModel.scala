@@ -24,11 +24,11 @@ object Task {
     implicit val implicitTaskWrites = new Writes[Task] {
         def writes(task: Task): JsValue = {
             Json.obj(
-              "id" -> task.id.get,
-              "title" -> task.title,
-              "description" -> task.description,
-              "dueDate" -> dateFormatter.print(task.dueDate.get.getMillis),
-              "estimatedTime" -> task.estimatedTime)
+                "id" -> task.id.get,
+                "title" -> task.title,
+                "description" -> task.description,
+                "dueDate" -> task.dueDate.map(date => dateFormatter.print(date.getMillis)),
+                "estimatedTime" -> task.estimatedTime)
         }
     }
 
