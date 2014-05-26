@@ -65,20 +65,24 @@ object TaskController extends Controller {
         if (title isEmpty) {
             BadRequest
         } else {
-            if (id == -1) {
-                val task = new Task(title = title, description = Some(description),
-                    dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
-                DB.withSession { implicit session =>
-                    TableQuery[TaskModel] += task
-                }
-            } else {
-                val task = new Task(id = Some(id), title = title, description = Some(description),
-                    dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
-                DB.withSession { implicit session =>
-                    TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
-                }
-            }
-            Ok
+            Ok(
+                Json.toJson(
+                    if (id == -1) {
+                        val task = new Task(title = title, description = Some(description),
+                            dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
+                        task.insert()
+                        task
+                    } else {
+                        val task = new Task(id = Some(id), title = title, description = Some(description),
+                            dueDate = Some(dueDate), estimatedTime = Some(estimatedTime))
+                        DB.withSession { implicit session =>
+                            TableQuery[TaskModel].filter(_.id === task.id.get).update(task)
+                        }
+                        task
+                    }
+                )
+            ).as("text/text")
+
         }
     }
 

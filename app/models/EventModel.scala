@@ -15,7 +15,7 @@ object EventType extends Enumeration {
 }
 
 case class Event(
-    id: Option[Int] = None,
+    var id: Option[Int] = None,
     eventType: EventType.Value = EventType.Normal,
     task: Option[Task] = None,
     startTime: DateTime,
@@ -33,8 +33,8 @@ case class Event(
         }
 
         DB.withSession { implicit session =>
-            TableQuery[EventModel] += this 
-        }
+            id = Some((TableQuery[EventModel] returning TableQuery[EventModel].map(_.id)) += this) 
+	}
     }
 }
 

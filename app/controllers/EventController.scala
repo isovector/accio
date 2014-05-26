@@ -70,6 +70,8 @@ object EventController extends Controller {
 
         event.insert()
 
-        Ok
+        Ok(
+            Json.toJson( event )
+        ).as("text/text")
     }
 }
