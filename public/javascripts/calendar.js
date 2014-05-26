@@ -21,10 +21,11 @@ accioApp.directive('calendar', ['$http', '$filter', function ($http, $filter) {
             scheduler.attachEvents(["onEventSave"], function (id, ev) {
                 id = parseInt(id);
                 ev.id = id;
+                // If event from calendar already exists in our local events then
                 if ((cur_ev = _.findIndex(scope.events, { 'id': id })) != -1) {
-                    _.extend(scope.events[cur_ev], ev);
-                    ev = scope.events[cur_ev];
-                } else {
+                    _.extend(scope.events[cur_ev], ev); // Copy new calendar event properties to local event
+                    ev = scope.events[cur_ev];          // Prepare calendar event to be sent to server by setting it to our local event 
+                } else {                                // - we need to do this because the event handler from the calendar gives us back it's own event structure (ie. one missing eventType)
                     ev.id = null;
                     ev.eventType = "WorkChunk"; 
                 }
